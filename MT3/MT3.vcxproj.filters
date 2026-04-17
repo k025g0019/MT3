@@ -20,6 +20,12 @@
     <ClCompile Include="C:\KamataEngine\Adapter\Novice.cpp">
       <Filter>KamataEngine\Adapter</Filter>
     </ClCompile>
+    <ClCompile Include="Matrix.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector.cpp">
+      <Filter>CPP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\KamataEngine\DirectXGame\audio\Audio.h">
@@ -102,6 +108,12 @@
     </ClInclude>
     <ClInclude Include="C:\KamataEngine\DirectXGame\2d\ImGuiManager.h">
       <Filter>KamataEngine\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix.h">
+      <Filter>H</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector.h">
+      <Filter>H</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
