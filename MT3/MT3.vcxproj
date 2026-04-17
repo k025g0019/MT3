@@ -17,7 +17,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{4814df08-70e1-419d-adc5-aa460d24a7aa}</ProjectGuid>
+    <ProjectGuid>{14BD6BDF-0620-881A-AB64-D7CC4DD0FF82}</ProjectGuid>
     <RootNamespace>MT3</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
