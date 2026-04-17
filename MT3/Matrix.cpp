@@ -42,25 +42,6 @@ Vector3 Multiply(float scalar, const Vector3& v) {
 	return result;
 }
 
-//内積
-float Dot(const Vector3& v1, const Vector3& v2) {
-	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-}
-
-//ベクトルの長さ
-float Length(const Vector3& v) {
-	return sqrt(Dot(v, v));
-}
-
-//正規化
-Vector3 Normalize(const Vector3& v) {
-	float length = Length(v);
-	if (length == 0.0f) {
-		return { 0.0f, 0.0f, 0.0f }; // ゼロベクトルの正規化はゼロベクトルを返す
-	}
-	return Multiply(1.0f / length, v);
-}
-
 void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label) {
 	Novice::ScreenPrintf(x, y, "%s", label);
 	for (int i = 0; i < 4; ++i) {
