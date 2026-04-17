@@ -5,6 +5,62 @@
 
 #include "Vector&Matrix.h"
 
+#include "Novice.h"
+#include "Vector.h"
+#include  "math.h"
+void VectorScreenPrintf(int x, int y, Vector3 result, const char* label) {
+	Novice::ScreenPrintf(x, y, "%0.02f", result.x);
+	Novice::ScreenPrintf(x + 50, y, " %0.02f", result.y);
+	Novice::ScreenPrintf(x + 100, y, "%0.02f %s", result.z, label);
+}
+
+//加算
+Vector3 Add(const Vector3& v1, const Vector3& v2) {
+	Vector3 result;
+	result.x = v1.x + v2.x;
+	result.y = v1.y + v2.y;
+	result.z = v1.z + v2.z;
+	return result;
+
+}
+
+//減算
+Vector3 Subtract(const Vector3& v1, const Vector3& v2) {
+	Vector3 result;
+	result.x = v1.x - v2.x;
+	result.y = v1.y - v2.y;
+	result.z = v1.z - v2.z;
+	return result;
+}
+
+//スカラー倍
+Vector3 Multiply(float scalar, const Vector3& v) {
+	Vector3 result;
+	result.x = scalar * v.x;
+	result.y = scalar * v.y;
+	result.z = scalar * v.z;
+	return result;
+}
+
+//内積
+float Dot(const Vector3& v1, const Vector3& v2) {
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+//ベクトルの長さ
+float Length(const Vector3& v) {
+	return sqrt(Dot(v, v));
+}
+
+//正規化
+Vector3 Normalize(const Vector3& v) {
+	float length = Length(v);
+	if (length == 0.0f) {
+		return { 0.0f, 0.0f, 0.0f }; // ゼロベクトルの正規化はゼロベクトルを返す
+	}
+	return Multiply(1.0f / length, v);
+}
+
 void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label) {
 	Novice::ScreenPrintf(x, y, "%s", label);
 	for (int i = 0; i < 4; ++i) {
@@ -180,7 +236,7 @@ Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspect, float nearZ, float 
 	result.matrix[2][3] = 1.0f;
 	result.matrix[3][2] = (-nearZ * farZ) / (farZ - nearZ);
 	return result;
-}
+		}
 
 //正射影行列
 // 正射影行列
@@ -203,7 +259,7 @@ Matrix4x4 MakeOrthographicMatrix(
 	result.matrix[3][3] = 1.0f;
 
 	return result;
-}
+	}
 
 // ビューポート行列
 // ビューポート行列
