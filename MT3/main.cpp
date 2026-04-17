@@ -3,65 +3,140 @@
 
 const char kWindowTitle[] = "LE1B_26";
 
-struct Vector3 {
-	float x;
-	float y;
-	float z;
+static const int kRowHeigth = 20;
+static const int kColumnWidth = 60;
+
+struct Matrix4x4 {
+	float m[4][4];
 };
 
-void VectorScreenPrintf(int x, int y, Vector3 result, const char* label) {
-	Novice::ScreenPrintf(x, y, "%0.02f", result.x);
-	Novice::ScreenPrintf(x+50, y, " %0.02f", result.y);
-	Novice::ScreenPrintf(x+100, y, "%0.02f %s", result.z, label);
-}
 
-//加算
-Vector3 Add(const Vector3& v1 , const Vector3& v2) {
-	Vector3 result;
-	result.x = v1.x + v2.x;
-	result.y = v1.y + v2.y;
-	result.z = v1.z + v2.z;
-	return result;
 
-}
-
-//減算
-Vector3 Subtract(const Vector3& v1,const Vector3& v2) {
-	Vector3 result;
-	result.x = v1.x - v2.x;
-	result.y = v1.y - v2.y;
-	result.z = v1.z - v2.z;
-	return result;
-}
-
-//スカラー倍
-Vector3 Multiply(float scalar, const Vector3& v) {
-	Vector3 result;
-	result.x = scalar * v.x;
-	result.y = scalar * v.y;
-	result.z = scalar * v.z;
-	return result;
-}
-
-//内積
-float Dot(const Vector3& v1, const Vector3& v2) {
-	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-}
-
-//ベクトルの長さ
-float Length(const Vector3& v) {
-	return sqrt(Dot(v, v));
-}
-
-//正規化
-Vector3 Normalize(const Vector3& v) {
-	float length = Length(v);
-	if (length == 0.0f) {
-		return {0.0f, 0.0f, 0.0f}; // ゼロベクトルの正規化はゼロベクトルを返す
+void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label)	 {
+	Novice::ScreenPrintf(x, y, "%s", label);
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			Novice::ScreenPrintf(x + j * kColumnWidth, y + i * kRowHeigth + kRowHeigth, "%6.2f", matrix.m[i][j]);
+		}
 	}
-	return Multiply(1.0f / length, v);
 }
 
+Matrix4x4 add(Matrix4x4 m1,Matrix4x4 m2) {
+	Matrix4x4 result;
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			result.m[i][j] = m1.m[i][j] + m2.m[i][j];
+		}
+	}
+	return result;
+}
+
+Matrix4x4 subtract(Matrix4x4 m1, Matrix4x4 m2) {
+	Matrix4x4 result;
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			result.m[i][j] = m1.m[i][j] - m2.m[i][j];
+		}
+	}
+	return result;
+}
+
+
+Matrix4x4 Multiply(Matrix4x4 m1, Matrix4x4 m2) {
+	Matrix4x4 result;
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			result.m[i][j] = 0.0f;
+			for (int k = 0; k < 4; ++k) {
+				result.m[i][j] += m1.m[i][k] * m2.m[k][j];
+			}
+		}
+	}
+	return result;
+}
+
+Matrix4x4 Inverse(Matrix4x4 m1) {
+	Matrix4x4 result;
+	float augmented[4][8] = {};
+
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			augmented[i][j] = m1.m[i][j];
+			augmented[i][j + 4] = (i == j) ? 1.0f : 0.0f;
+		}
+	}
+
+	for (int i = 0; i < 4; ++i) {
+		int pivotRow = i;
+		for (int j = i + 1; j < 4; ++j) {
+			if (std::fabs(augmented[j][i]) > std::fabs(augmented[pivotRow][i])) {
+				pivotRow = j;
+			}
+		}
+
+		if (std::fabs(augmented[pivotRow][i]) < 1.0e-6f) {
+			for (int row = 0; row < 4; ++row) {
+				for (int col = 0; col < 4; ++col) {
+					result.m[row][col] = 0.0f;
+				}
+			}
+			return result;
+		}
+
+		if (pivotRow != i) {
+			for (int j = 0; j < 8; ++j) {
+				float tmp = augmented[i][j];
+				augmented[i][j] = augmented[pivotRow][j];
+				augmented[pivotRow][j] = tmp;
+			}
+		}
+
+		float pivot = augmented[i][i];
+		for (int j = 0; j < 8; ++j) {
+			augmented[i][j] /= pivot;
+		}
+
+		for (int row = 0; row < 4; ++row) {
+			if (row == i) {
+				continue;
+			}
+
+			float factor = augmented[row][i];
+			for (int col = 0; col < 8; ++col) {
+				augmented[row][col] -= factor * augmented[i][col];
+			}
+		}
+	}
+
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			result.m[i][j] = augmented[i][j + 4];
+		}
+	}
+
+	return result;
+}
+
+Matrix4x4 Transpose(Matrix4x4 m1) {
+	Matrix4x4 result;
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			result.m[i][j] = m1.m[j][i];
+		}
+	}
+	return result;
+}
+
+Matrix4x4 MakeIdentity4x4() {
+	Matrix4x4 result;
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			result.m[i][j] = (i == j) ? 1.0f : 0.0f;
+		}
+	}
+	return result;
+
+}
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
@@ -71,10 +146,20 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// キー入力結果を受け取る箱
 	char keys[256] = {0};
 	char preKeys[256] = {0};
-	Vector3 v1 = {1.0f, 3.0f, -5.0f};
-	Vector3 v2 = { 4.0f, -1.0f, 2.0f };
-	float k = 4.0f;
 
+	Matrix4x4 m1 = {
+		3.2f ,0.7f,9.6f,4.4f,
+		5.5f ,1.3f,7.8f,2.1f,
+		6.9f ,8.0f,2.6f,1.0f,
+		0.5f ,7.2f,5.1f,3.3f 
+	};
+
+	Matrix4x4 m2 = {
+		4.1f,6.5f,3.3f,2.2f,
+		8.8f,0.6f,9.9f,7.7f,
+		1.1f,5.5f,6.6f,0.0f,
+		3.3f,9.9f,8.8f,2.2f
+	};
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -88,12 +173,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		/// ↓更新処理ここから
 		///
 
-		Vector3 resultAdd = Add(v1, v2);
-		Vector3 resultSubtract = Subtract(v1, v2);
-		Vector3 resultMultiply = Multiply(k, v1);
-		float resultDot = Dot(v1, v2);
-		float resultLength = Length(v1);
-		Vector3 resultNormalize = Normalize(v2);
+		Matrix4x4 resultAdd = add(m1, m2);
+		Matrix4x4 resultMultiply = Multiply(m1, m2);
+		Matrix4x4 resultSubtract = subtract(m1, m2);
+		Matrix4x4 inverseM1 = Inverse(m1);
+		Matrix4x4 inverseM2 = Inverse(m2);
+		Matrix4x4 transposeM1 = Transpose(m1);
+		Matrix4x4 transposeM2 = Transpose(m2);
+		Matrix4x4 identity = MakeIdentity4x4();
+
 
 		///
 		/// ↑更新処理ここまで
@@ -103,12 +191,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		/// ↓描画処理ここから
 		///
 
-		VectorScreenPrintf(0, 0, resultAdd,":ADD");
-		VectorScreenPrintf(0, 60, resultSubtract, ":SUBTRACT");
-		VectorScreenPrintf(0, 120, resultMultiply, ":MULTIPLY");
-		Novice::ScreenPrintf(0, 180, "Dot: %0.02f", resultDot);
-		Novice::ScreenPrintf(0, 200, "Length: %0.02f", resultLength);
-		VectorScreenPrintf(0, 220, resultNormalize, ":NORMALIZE");
+		MatrixScreenPrintf(0, 0, resultAdd, "Add");
+		MatrixScreenPrintf(0, kRowHeigth*5, resultSubtract, "Subtract");
+		MatrixScreenPrintf(0, kRowHeigth * 5*2, resultMultiply, "Multiply");
+		MatrixScreenPrintf(0, kRowHeigth * 5*3, inverseM1, "Inverse M1");
+		MatrixScreenPrintf(0, kRowHeigth * 5*4, inverseM2, "Inverse M2");
+		MatrixScreenPrintf(kColumnWidth*5,0, transposeM1, "Transpose M1");
+		MatrixScreenPrintf(kColumnWidth * 5, kRowHeigth * 5, transposeM2, "Transpose M2");
+		MatrixScreenPrintf(kColumnWidth * 5, kRowHeigth * 5*2, identity, "Identity");
+
 		///
 		/// ↑描画処理ここまで
 		///
