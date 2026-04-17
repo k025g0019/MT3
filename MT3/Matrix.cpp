@@ -1,61 +1,7 @@
+#include "Matrix.h"
 
-
-
-#include "Novice.h"
-#include "Vector.h"
-#include  "math.h"
-void VectorScreenPrintf(int x, int y, Vector3 result, const char* label) {
-	Novice::ScreenPrintf(x, y, "%0.02f", result.x);
-	Novice::ScreenPrintf(x + 50, y, " %0.02f", result.y);
-	Novice::ScreenPrintf(x + 100, y, "%0.02f %s", result.z, label);
-}
-
-//加算
-Vector3 Add(const Vector3& v1, const Vector3& v2) {
-	Vector3 result;
-	result.x = v1.x + v2.x;
-	result.y = v1.y + v2.y;
-	result.z = v1.z + v2.z;
-	return result;
-
-}
-
-//減算
-Vector3 Subtract(const Vector3& v1, const Vector3& v2) {
-	Vector3 result;
-	result.x = v1.x - v2.x;
-	result.y = v1.y - v2.y;
-	result.z = v1.z - v2.z;
-	return result;
-}
-
-//スカラー倍
-Vector3 Multiply(float scalar, const Vector3& v) {
-	Vector3 result;
-	result.x = scalar * v.x;
-	result.y = scalar * v.y;
-	result.z = scalar * v.z;
-	return result;
-}
-
-//内積
-float Dot(const Vector3& v1, const Vector3& v2) {
-	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-}
-
-//ベクトルの長さ
-float Length(const Vector3& v) {
-	return sqrt(Dot(v, v));
-}
-
-//正規化
-Vector3 Normalize(const Vector3& v) {
-	float length = Length(v);
-	if (length == 0.0f) {
-		return { 0.0f, 0.0f, 0.0f }; // ゼロベクトルの正規化はゼロベクトルを返す
-	}
-	return Multiply(1.0f / length, v);
-}
+#include <Novice.h>
+#include <cmath>
 
 void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label) {
 	Novice::ScreenPrintf(x, y, "%s", label);
@@ -66,7 +12,7 @@ void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label
 	}
 }
 
-Matrix4x4 add(Matrix4x4 m1, Matrix4x4 m2) {
+Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2) {
 	Matrix4x4 result;
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
@@ -76,7 +22,7 @@ Matrix4x4 add(Matrix4x4 m1, Matrix4x4 m2) {
 	return result;
 }
 
-Matrix4x4 subtract(Matrix4x4 m1, Matrix4x4 m2) {
+Matrix4x4 Subtract(const Matrix4x4& m1, const Matrix4x4& m2) {
 	Matrix4x4 result;
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
@@ -86,8 +32,7 @@ Matrix4x4 subtract(Matrix4x4 m1, Matrix4x4 m2) {
 	return result;
 }
 
-
-Matrix4x4 Multiply(Matrix4x4 m1, Matrix4x4 m2) {
+Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
 	Matrix4x4 result;
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
@@ -100,13 +45,13 @@ Matrix4x4 Multiply(Matrix4x4 m1, Matrix4x4 m2) {
 	return result;
 }
 
-Matrix4x4 Inverse(Matrix4x4 m1) {
+Matrix4x4 Inverse(const Matrix4x4& m) {
 	Matrix4x4 result;
 	float augmented[4][8] = {};
 
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
-			augmented[i][j] = m1.m[i][j];
+			augmented[i][j] = m.m[i][j];
 			augmented[i][j + 4] = (i == j) ? 1.0f : 0.0f;
 		}
 	}
@@ -130,9 +75,9 @@ Matrix4x4 Inverse(Matrix4x4 m1) {
 
 		if (pivotRow != i) {
 			for (int j = 0; j < 8; ++j) {
-				float tmp = augmented[i][j];
+				float temp = augmented[i][j];
 				augmented[i][j] = augmented[pivotRow][j];
-				augmented[pivotRow][j] = tmp;
+				augmented[pivotRow][j] = temp;
 			}
 		}
 
@@ -162,11 +107,11 @@ Matrix4x4 Inverse(Matrix4x4 m1) {
 	return result;
 }
 
-Matrix4x4 Transpose(Matrix4x4 m1) {
+Matrix4x4 Transpose(const Matrix4x4& m) {
 	Matrix4x4 result;
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
-			result.m[i][j] = m1.m[j][i];
+			result.m[i][j] = m.m[j][i];
 		}
 	}
 	return result;
@@ -180,5 +125,4 @@ Matrix4x4 MakeIdentity4x4() {
 		}
 	}
 	return result;
-
 }
