@@ -7,7 +7,7 @@ void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label
 	Novice::ScreenPrintf(x, y, "%s", label);
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
-			Novice::ScreenPrintf(x + j * kColumnWidth, y + i * kRowHeigth + kRowHeigth, "%6.2f", matrix.m[i][j]);
+			Novice::ScreenPrintf(x + j * kColumnWidth, y + i * kRowHeight + kRowHeight, "%6.2f", matrix.m[i][j]);
 		}
 	}
 }

@@ -3,8 +3,7 @@
 #include "Matrix.h"
 
 const char kWindowTitle[] = "LE1B_26";
-constexpr int kRowHeight = 20;
-constexpr int kColumnWidth = 60;
+
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
