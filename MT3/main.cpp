@@ -3,7 +3,8 @@
 #include "Matrix.h"
 
 const char kWindowTitle[] = "LE1B_26";
-
+constexpr int kRowHeight = 20;
+constexpr int kColumnWidth = 60;
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
@@ -38,13 +39,13 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		Matrix4x4 identity = MakeIdentity4x4();
 
 		MatrixScreenPrintf(0, 0, resultAdd, "Add");
-		MatrixScreenPrintf(0, kRowHeigth * 5, resultSubtract, "Subtract");
-		MatrixScreenPrintf(0, kRowHeigth * 10, resultMultiply, "Multiply");
-		MatrixScreenPrintf(0, kRowHeigth * 15, inverseM1, "Inverse M1");
-		MatrixScreenPrintf(0, kRowHeigth * 20, inverseM2, "Inverse M2");
+		MatrixScreenPrintf(0, kRowHeight * 5, resultSubtract, "Subtract");
+		MatrixScreenPrintf(0, kRowHeight * 10, resultMultiply, "Multiply");
+		MatrixScreenPrintf(0, kRowHeight * 15, inverseM1, "Inverse M1");
+		MatrixScreenPrintf(0, kRowHeight * 20, inverseM2, "Inverse M2");
 		MatrixScreenPrintf(kColumnWidth * 5, 0, transposeM1, "Transpose M1");
-		MatrixScreenPrintf(kColumnWidth * 5, kRowHeigth * 5, transposeM2, "Transpose M2");
-		MatrixScreenPrintf(kColumnWidth * 5, kRowHeigth * 10, identity, "Identity");
+		MatrixScreenPrintf(kColumnWidth * 5, kRowHeight * 5, transposeM2, "Transpose M2");
+		MatrixScreenPrintf(kColumnWidth * 5, kRowHeight * 10, identity, "Identity");
 
 		Novice::EndFrame();
 

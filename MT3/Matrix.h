@@ -4,8 +4,7 @@ struct Matrix4x4 {
 	float m[4][4];
 };
 
-constexpr int kRowHeigth = 20;
-constexpr int kColumnWidth = 60;
+
 
 void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label);
 Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2);
