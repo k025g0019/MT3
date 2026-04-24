@@ -1,5 +1,5 @@
 #pragma once
-
+#include <cmath>
 
 struct Matrix4x4 {
 	float matrix[4][4];
@@ -16,3 +16,12 @@ Matrix4x4 Inverse(const Matrix4x4& matrix);
 Matrix4x4 Transpose(const Matrix4x4& matrix);
 Matrix4x4 MakeIdentity4x4();
 
+//1 x軸回転行列
+Matrix4x4 MakeRotateXMatrix(float radian);
+
+
+//2 y軸回転行列
+Matrix4x4 MakeRotateYMatrix(float radian);
+
+//3 z軸回転行列
+Matrix4x4 MakeRotateZMatrix(float radian);
