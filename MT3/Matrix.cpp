@@ -7,51 +7,50 @@ void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label
 	Novice::ScreenPrintf(x, y, "%s", label);
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
-			Novice::ScreenPrintf(x + j * kColumnWidth, y + i * kRowHeight + kRowHeight, "%6.2f", matrix.m[i][j]);
+			Novice::ScreenPrintf(x + j * kColumnWidth, y + i * kRowHeight + kRowHeight, "%6.2f", matrix.matrix[i][j]);
 		}
 	}
 }
 
-Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2) {
+Matrix4x4 Add(const Matrix4x4& matrix1, const Matrix4x4& matrix2){
 	Matrix4x4 result;
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
-			result.m[i][j] = m1.m[i][j] + m2.m[i][j];
+			result.matrix[i][j] = matrix1.matrix[i][j] + matrix2.matrix[i][j];
+		}
+	}
+	return result;
+}
+Matrix4x4 Subtract(const Matrix4x4& matrix1, const Matrix4x4& matrix2) {
+	Matrix4x4 result;
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			result.matrix[i][j] = matrix1.matrix[i][j] - matrix2.matrix[i][j];
 		}
 	}
 	return result;
 }
 
-Matrix4x4 Subtract(const Matrix4x4& m1, const Matrix4x4& m2) {
+Matrix4x4 Multiply(const Matrix4x4& matrix1, const Matrix4x4& matrix2) {
 	Matrix4x4 result;
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
-			result.m[i][j] = m1.m[i][j] - m2.m[i][j];
-		}
-	}
-	return result;
-}
-
-Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
-	Matrix4x4 result;
-	for (int i = 0; i < 4; ++i) {
-		for (int j = 0; j < 4; ++j) {
-			result.m[i][j] = 0.0f;
+			result.matrix[i][j] = 0.0f;
 			for (int k = 0; k < 4; ++k) {
-				result.m[i][j] += m1.m[i][k] * m2.m[k][j];
+				result.matrix[i][j] += matrix1.matrix[i][k] * matrix2.matrix[k][j];
 			}
 		}
 	}
 	return result;
 }
 
-Matrix4x4 Inverse(const Matrix4x4& m) {
+Matrix4x4 Inverse(const Matrix4x4& matrix) {
 	Matrix4x4 result;
 	float augmented[4][8] = {};
 
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
-			augmented[i][j] = m.m[i][j];
+			augmented[i][j] = matrix.matrix[i][j];
 			augmented[i][j + 4] = (i == j) ? 1.0f : 0.0f;
 		}
 	}
@@ -67,7 +66,7 @@ Matrix4x4 Inverse(const Matrix4x4& m) {
 		if (std::fabs(augmented[pivotRow][i]) < 1.0e-6f) {
 			for (int row = 0; row < 4; ++row) {
 				for (int col = 0; col < 4; ++col) {
-					result.m[row][col] = 0.0f;
+					result.matrix[row][col] = 0.0f;
 				}
 			}
 			return result;
@@ -100,18 +99,18 @@ Matrix4x4 Inverse(const Matrix4x4& m) {
 
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
-			result.m[i][j] = augmented[i][j + 4];
+			result.matrix[i][j] = augmented[i][j + 4];
 		}
 	}
 
 	return result;
 }
 
-Matrix4x4 Transpose(const Matrix4x4& m) {
+Matrix4x4 Transpose(const Matrix4x4& matrix) {
 	Matrix4x4 result;
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
-			result.m[i][j] = m.m[j][i];
+			result.matrix[i][j] = matrix.matrix[j][i];
 		}
 	}
 	return result;
@@ -121,8 +120,9 @@ Matrix4x4 MakeIdentity4x4() {
 	Matrix4x4 result;
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
-			result.m[i][j] = (i == j) ? 1.0f : 0.0f;
+			result.matrix[i][j] = (i == j) ? 1.0f : 0.0f;
 		}
 	}
 	return result;
 }
+

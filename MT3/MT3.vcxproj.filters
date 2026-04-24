@@ -14,17 +14,25 @@
     <Filter Include="KamataEngine\Adapter">
       <UniqueIdentifier>{c6468eb4-788b-4a83-b207-a5f4804e56c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="KamataEngine\hedar">
+      <UniqueIdentifier>{2ccf60ba-5397-4783-bab1-557a3ee43268}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="C:\KamataEngine\Adapter\Novice.cpp">
       <Filter>KamataEngine\Adapter</Filter>
     </ClCompile>
+    <ClCompile Include="Vector&amp;Matrix.cpp">
+      <Filter>KamataEngine\Source</Filter>
+    </ClCompile>
     <ClCompile Include="Matrix.cpp">
-      <Filter>CPP</Filter>
+      <Filter>KamataEngine\Source</Filter>
     </ClCompile>
     <ClCompile Include="Vector.cpp">
-      <Filter>CPP</Filter>
+      <Filter>KamataEngine\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>KamataEngine\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -110,10 +118,13 @@
       <Filter>KamataEngine\Include</Filter>
     </ClInclude>
     <ClInclude Include="Matrix.h">
-      <Filter>H</Filter>
+      <Filter>KamataEngine\hedar</Filter>
     </ClInclude>
     <ClInclude Include="Vector.h">
-      <Filter>H</Filter>
+      <Filter>KamataEngine\hedar</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector&amp;Matrix.h">
+      <Filter>KamataEngine\hedar</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

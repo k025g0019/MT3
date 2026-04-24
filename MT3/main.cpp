@@ -1,7 +1,8 @@
 #include <Novice.h>
+#include <math/MathUtility.h>
 
-#include "Matrix.h"
 
+#include "Vector&Matrix.h"
 const char kWindowTitle[] = "LE1B_26";
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
@@ -10,17 +11,19 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
-	Matrix4x4 m1 = {
-		3.2f, 0.7f, 9.6f, 4.4f,
-		5.5f, 1.3f, 7.8f, 2.1f,
-		6.9f, 8.0f, 2.6f, 1.0f,
-		0.5f, 7.2f, 5.1f, 3.3f};
+	Vector3 translate{ 4.1f,2.6f,0.8f };
+	Vector3 scale{ 1.5f,5.2f,7.3f };
+	
+	
+	Vector3 point{ 2.3f,3.8f,1.4f };
 
-	Matrix4x4 m2 = {
-		4.1f, 6.5f, 3.3f, 2.2f,
-		8.8f, 0.6f, 9.9f, 7.7f,
-		1.1f, 5.5f, 6.6f, 0.0f,
-		3.3f, 9.9f, 8.8f, 2.2f};
+	Matrix4x4 transformMatrix = {
+		1.0f,2.0f,3.0f,4.0f,
+		3.0f,1.0f,1.0f,2.0f,
+		1.0f,4.0f,2.0f,3.0f,
+		2.0f,2.0f,1.0f,3.0f
+	};
+
 
 	while (Novice::ProcessMessage() == 0) {
 		Novice::BeginFrame();
@@ -28,23 +31,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		memcpy(preKeys, keys, 256);
 		Novice::GetHitKeyStateAll(keys);
 
-		Matrix4x4 resultAdd = Add(m1, m2);
-		Matrix4x4 resultSubtract = Subtract(m1, m2);
-		Matrix4x4 resultMultiply = Multiply(m1, m2);
-		Matrix4x4 inverseM1 = Inverse(m1);
-		Matrix4x4 inverseM2 = Inverse(m2);
-		Matrix4x4 transposeM1 = Transpose(m1);
-		Matrix4x4 transposeM2 = Transpose(m2);
-		Matrix4x4 identity = MakeIdentity4x4();
+		Matrix4x4 translateMatrix = MakeTranslationMatrix(translate);
 
-		MatrixScreenPrintf(0, 0, resultAdd, "Add");
-		MatrixScreenPrintf(0, kRowHeight * 5, resultSubtract, "Subtract");
-		MatrixScreenPrintf(0, kRowHeight * 10, resultMultiply, "Multiply");
-		MatrixScreenPrintf(0, kRowHeight * 15, inverseM1, "Inverse M1");
-		MatrixScreenPrintf(0, kRowHeight * 20, inverseM2, "Inverse M2");
-		MatrixScreenPrintf(kColumnWidth * 5, 0, transposeM1, "Transpose M1");
-		MatrixScreenPrintf(kColumnWidth * 5, kRowHeight * 5, transposeM2, "Transpose M2");
-		MatrixScreenPrintf(kColumnWidth * 5, kRowHeight * 10, identity, "Identity");
+		Matrix4x4 scaleMatrix = MakeScaleMatrix(scale);
+
+		Vector3 transformed = Transform(point, transformMatrix);
+		
+		VectorScreenPrintf(0, 0, transformed, "transformed");
+		MatrixScreenPrintf(0,10,translateMatrix, "translateMatrix");
+		MatrixScreenPrintf(0, kRowHeight * 5+20, scaleMatrix, "scaleMatrix");
 
 		Novice::EndFrame();
 
