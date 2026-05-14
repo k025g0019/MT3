@@ -174,9 +174,9 @@ Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspect, float nearZ, float 
 	float f = 1.0f / std::tan(fovY / 2.0f);
 	result.matrix[0][0] = f / aspect;
 	result.matrix[1][1] = f;
-	result.matrix[2][2] = (farZ + nearZ) / (nearZ - farZ);
-	result.matrix[2][3] = (2.0f * farZ * nearZ) / (nearZ - farZ);
-	result.matrix[3][2] = -1.0f;
+	result.matrix[2][2] = farZ / (farZ - nearZ);
+	result.matrix[2][3] = 1.0f;
+	result.matrix[3][2] = (-nearZ * farZ) / (farZ - nearZ);
 	return result;
 }
 

@@ -1,17 +1,28 @@
 #include <Novice.h>
-#include <math/MathUtility.h>
 
-#include  "Matrix.h"
 #include "Vector&Matrix.h"
-#include  "Vector.h"
+
 constexpr char kWindowTitle[] = "LE1B_26";
+constexpr int kWindowWidth = 1280;
+constexpr int kWindowHeight = 720;
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
-	Novice::Initialize(kWindowTitle, 1280, 720);
+	Novice::Initialize(kWindowTitle, kWindowWidth, kWindowHeight);
 
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
+	Vector3 rotate{};
+	Vector3 translate{};
+	const Vector3 cameraPosition{0.0f, 0.0f, -6.0f};
+	const Vector3 kLocalVertices[3] = {
+		{0.0f, 1.0f, 0.0f},
+		{1.0f, -1.0f, 0.0f},
+		{-1.0f, -1.0f, 0.0f},
+	};
+
+	const Vector3 v1{1.2f, -3.9f, 2.5f};
+	const Vector3 v2{2.8f, 0.4f, -1.3f};
 
 	while (Novice::ProcessMessage() == 0) {
 		Novice::BeginFrame();
@@ -19,15 +30,42 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		memcpy(preKeys, keys, 256);
 		Novice::GetHitKeyStateAll(keys);
 
-		Matrix4x4 orthographicMatrix = MakeOrthographicMatrix(-160.f, 160.f, 200.0f, 300.0f, 0.0f, 1000.0f);
+		if (keys[DIK_W]) {
+			translate.z -= 0.1f;
+		}
+		if (keys[DIK_S]) {
+			translate.z += 0.1f;
+		}
+		if (keys[DIK_A]) {
+			translate.x -= 0.1f;
+		}
+		if (keys[DIK_D]) {
+			translate.x += 0.1f;
+		}
 
-		Matrix4x4 perspectiveFovMatrix = MakePerspectiveFovMatrix(0.63f, 1.33f, 0.1f, 1000.0f);
+		rotate.y += 0.02f;
 
-		Matrix4x4 viewporMatrix = MakeViewportMatrix(100.0f, 200.0f, 600.0f, 300.0f, 0.0f, 1.0f);
+		Vector3 cross = Cross(v1, v2);
+		Matrix4x4 worldMatrix = MakeAffineMatrix({1.0f, 1.0f, 1.0f}, rotate, translate);
+		Matrix4x4 cameraMatrix = MakeAffineMatrix({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, cameraPosition);
+		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
+		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+		Matrix4x4 viewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
-		MatrixScreenPrintf(0, 0, orthographicMatrix, "Orthographic Matrix");
-		MatrixScreenPrintf(0, kRowHeight * 5, perspectiveFovMatrix, "Perspective Fov Matrix");
-		MatrixScreenPrintf(0, kRowHeight * 10, viewporMatrix, "Viewport Matrix");
+		Vector3 screenVertices[3];
+		for (int i = 0; i < 3; ++i) {
+			Vector3 ndcVertex = Transform(kLocalVertices[i], worldViewProjectionMatrix);
+			screenVertices[i] = Transform(ndcVertex, viewportMatrix);
+		}
+
+		VectorScreenPrintf(0, 0, cross, "Cross");
+		Novice::DrawTriangle(
+			int(screenVertices[0].x), int(screenVertices[0].y),
+			int(screenVertices[1].x), int(screenVertices[1].y),
+			int(screenVertices[2].x), int(screenVertices[2].y),
+			RED, kFillModeSolid);
+
 		Novice::EndFrame();
 
 		if (preKeys[DIK_ESCAPE] == 0 && keys[DIK_ESCAPE] != 0) {
