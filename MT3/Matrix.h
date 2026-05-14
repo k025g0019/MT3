@@ -4,6 +4,7 @@
 struct Matrix4x4 {
 	float matrix[4][4];
 };
+
 constexpr int kRowHeight = 20;
 constexpr int kColumnWidth = 60;
 
@@ -25,4 +26,3 @@ Matrix4x4 MakeRotateYMatrix(float radian);
 
 //3 z軸回転行列
 Matrix4x4 MakeRotateZMatrix(float radian);
-

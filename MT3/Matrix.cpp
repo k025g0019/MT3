@@ -132,8 +132,8 @@ Matrix4x4 MakeRotateXMatrix(float radian) {
 	float cosTheta = std::cos(radian);
 	float sinTheta = std::sin(radian);
 	result.matrix[1][1] = cosTheta;
-	result.matrix[1][2] = -sinTheta;
-	result.matrix[2][1] = sinTheta;
+	result.matrix[1][2] = sinTheta;
+	result.matrix[2][1] = -sinTheta;
 	result.matrix[2][2] = cosTheta;
 	result.matrix[0][0] = 1.0f;
 	result.matrix[3][3] = 1.0f;
@@ -145,8 +145,8 @@ Matrix4x4 MakeRotateYMatrix(float radian) {
 	float cosTheta = std::cos(radian);
 	float sinTheta = std::sin(radian);
 	result.matrix[0][0] = cosTheta;
-	result.matrix[0][2] = sinTheta;
-	result.matrix[2][0] = -sinTheta;
+	result.matrix[0][2] = -sinTheta;
+	result.matrix[2][0] = sinTheta;
 	result.matrix[2][2] = cosTheta;
 	result.matrix[1][1] = 1.0f;
 	result.matrix[3][3] = 1.0f;
@@ -159,8 +159,8 @@ Matrix4x4 MakeRotateZMatrix(float radian) {
 	float cosTheta = std::cos(radian);
 	float sinTheta = std::sin(radian);
 	result.matrix[0][0] = cosTheta;
-	result.matrix[0][1] = -sinTheta;
-	result.matrix[1][0] = sinTheta;
+	result.matrix[0][1] = sinTheta;
+	result.matrix[1][0] = -sinTheta;
 	result.matrix[1][1] = cosTheta;
 	result.matrix[2][2] = 1.0f;
 	result.matrix[3][3] = 1.0f;
