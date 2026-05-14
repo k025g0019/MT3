@@ -1,8 +1,9 @@
 #include <Novice.h>
 #include <math/MathUtility.h>
 
-
+#include  "Matrix.h"
 #include "Vector&Matrix.h"
+#include  "Vector.h"
 constexpr char kWindowTitle[] = "LE1B_26";
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
@@ -10,8 +11,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	char keys[256] = {0};
 	char preKeys[256] = {0};
-	Vector3 scale{1.2f, 0.79f, -2.1f};
-	Vector3 rotate{0.4f, 1.43f, -0.8f};
 
 
 	while (Novice::ProcessMessage() == 0) {
@@ -20,9 +19,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		memcpy(preKeys, keys, 256);
 		Novice::GetHitKeyStateAll(keys);
 
+		Matrix4x4 orthographicMatrix = MakeOrthographicMatrix(-160.f, 160.f, 200.0f, 300.0f, 0.0f, 1000.0f);
 
-		Matrix4x4 wordMatrix = MakeAffineMatrix(scale, rotate, translate);
-		MatrixScreenPrintf(0, 0, wordMatrix, "wordMatrix");
+		Matrix4x4 perspectiveFovMatrix = MakePerspectiveFovMatrix(0.63f, 1.33f, 0.1f, 1000.0f);
+
+		Matrix4x4 viewporMatrix = MakeViewportMatrix(100.0f, 200.0f, 600.0f, 300.0f, 0.0f, 1.0f);
+
+		MatrixScreenPrintf(0, 0, orthographicMatrix, "Orthographic Matrix");
+		MatrixScreenPrintf(0, kRowHeight * 5, perspectiveFovMatrix, "Perspective Fov Matrix");
+		MatrixScreenPrintf(0, kRowHeight * 10, viewporMatrix, "Viewport Matrix");
 		Novice::EndFrame();
 
 		if (preKeys[DIK_ESCAPE] == 0 && keys[DIK_ESCAPE] != 0) {

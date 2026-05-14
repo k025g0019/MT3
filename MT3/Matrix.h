@@ -26,3 +26,9 @@ Matrix4x4 MakeRotateYMatrix(float radian);
 
 //3 z軸回転行列
 Matrix4x4 MakeRotateZMatrix(float radian);
+
+Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspect, float nearZ, float farZ);
+
+Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip);
+
+Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);

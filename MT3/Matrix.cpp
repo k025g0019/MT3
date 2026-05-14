@@ -12,7 +12,7 @@ void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label
 	}
 }
 
-Matrix4x4 Add(const Matrix4x4& matrix1, const Matrix4x4& matrix2){
+Matrix4x4 Add(const Matrix4x4& matrix1, const Matrix4x4& matrix2) {
 	Matrix4x4 result;
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
@@ -21,6 +21,7 @@ Matrix4x4 Add(const Matrix4x4& matrix1, const Matrix4x4& matrix2){
 	}
 	return result;
 }
+
 Matrix4x4 Subtract(const Matrix4x4& matrix1, const Matrix4x4& matrix2) {
 	Matrix4x4 result;
 	for (int i = 0; i < 4; ++i) {
@@ -128,7 +129,7 @@ Matrix4x4 MakeIdentity4x4() {
 
 
 Matrix4x4 MakeRotateXMatrix(float radian) {
-	Matrix4x4 result={0};
+	Matrix4x4 result = {0};
 	float cosTheta = std::cos(radian);
 	float sinTheta = std::sin(radian);
 	result.matrix[1][1] = cosTheta;
@@ -141,7 +142,7 @@ Matrix4x4 MakeRotateXMatrix(float radian) {
 }
 
 Matrix4x4 MakeRotateYMatrix(float radian) {
-	Matrix4x4  result = { 0 };
+	Matrix4x4 result = {0};
 	float cosTheta = std::cos(radian);
 	float sinTheta = std::sin(radian);
 	result.matrix[0][0] = cosTheta;
@@ -155,7 +156,7 @@ Matrix4x4 MakeRotateYMatrix(float radian) {
 
 
 Matrix4x4 MakeRotateZMatrix(float radian) {
-	Matrix4x4  result = { 0 };
+	Matrix4x4 result = {0};
 	float cosTheta = std::cos(radian);
 	float sinTheta = std::sin(radian);
 	result.matrix[0][0] = cosTheta;
@@ -164,5 +165,64 @@ Matrix4x4 MakeRotateZMatrix(float radian) {
 	result.matrix[1][1] = cosTheta;
 	result.matrix[2][2] = 1.0f;
 	result.matrix[3][3] = 1.0f;
+	return result;
+}
+
+// 透視投影行列
+Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspect, float nearZ, float farZ) {
+	Matrix4x4 result = {0};
+	float f = 1.0f / std::tan(fovY / 2.0f);
+	result.matrix[0][0] = f / aspect;
+	result.matrix[1][1] = f;
+	result.matrix[2][2] = (farZ + nearZ) / (nearZ - farZ);
+	result.matrix[2][3] = (2.0f * farZ * nearZ) / (nearZ - farZ);
+	result.matrix[3][2] = -1.0f;
+	return result;
+}
+
+//正射影行列
+// 正射影行列
+Matrix4x4 MakeOrthographicMatrix(
+	float left,
+	float top,
+	float right,
+	float bottom,
+	float nearClip,
+	float farClip
+) {
+	Matrix4x4 result = {0};
+
+	result.matrix[0][0] = 2.0f / (right - left);
+	result.matrix[1][1] = 2.0f / (top - bottom);
+	result.matrix[2][2] = 1.0f / (farClip - nearClip);
+	result.matrix[3][0] = (left + right) / (left - right);
+	result.matrix[3][1] = (top + bottom) / (bottom - top);
+	result.matrix[3][2] = nearClip / (nearClip - farClip);
+	result.matrix[3][3] = 1.0f;
+
+	return result;
+}
+
+// ビューポート行列
+// ビューポート行列
+Matrix4x4 MakeViewportMatrix(
+	float left,
+	float top,
+	float width,
+	float height,
+	float minDepth,
+	float maxDepth
+) {
+	Matrix4x4 result = {0};
+
+	result.matrix[0][0] = width / 2.0f;
+	result.matrix[1][1] = -height / 2.0f;
+	result.matrix[2][2] = maxDepth - minDepth;
+
+	result.matrix[3][0] = left + width / 2.0f;
+	result.matrix[3][1] = top + height / 2.0f;
+	result.matrix[3][2] = minDepth;
+	result.matrix[3][3] = 1.0f;
+
 	return result;
 }
