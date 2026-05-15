@@ -1,5 +1,7 @@
 #include "Vector&Matrix.h"
 
+#include "Novice.h"
+
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
 	Vector3 result;
 	result.x = vector.x * matrix.matrix[0][0] + vector.y * matrix.matrix[1][0] + vector.z * matrix.matrix[2][0] + matrix
@@ -76,4 +78,43 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Ve
 	Matrix4x4 translateMatrix = MakeTranslationMatrix(translate);
 	affineMatrix = Multiply(Multiply(scaleMatrix, rotateXMatrixYZMatrix), translateMatrix);
 	return affineMatrix;
+}
+
+void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix,
+                uint32_t color) {
+	constexpr uint32_t kSegmentCount = 16;
+	constexpr float kLonEvery = 2.0f * 3.14159265f / static_cast<float>(kSegmentCount);
+	constexpr float kLatEvery = 3.14159265f / static_cast<float>(kSegmentCount);
+
+	for (uint32_t latIndex = 0; latIndex < kSegmentCount; ++latIndex) {
+		float lat = -3.14159265f / 2.0f + kLatEvery * latIndex;
+		for (uint32_t lonIndex = 0; lonIndex < kSegmentCount; ++lonIndex) {
+			float lon = kLonEvery * lonIndex;
+
+			Vector3 a{
+				sphere.center.x + sphere.radius * std::cos(lat) * std::cos(lon),
+				sphere.center.y + sphere.radius * std::sin(lat),
+				sphere.center.z + sphere.radius * std::cos(lat) * std::sin(lon),
+			};
+			Vector3 b{
+				sphere.center.x + sphere.radius * std::cos(lat + kLatEvery) * std::cos(lon),
+				sphere.center.y + sphere.radius * std::sin(lat + kLatEvery),
+				sphere.center.z + sphere.radius * std::cos(lat + kLatEvery) * std::sin(lon),
+			};
+			Vector3 c{
+				sphere.center.x + sphere.radius * std::cos(lat) * std::cos(lon + kLonEvery),
+				sphere.center.y + sphere.radius * std::sin(lat),
+				sphere.center.z + sphere.radius * std::cos(lat) * std::sin(lon + kLonEvery),
+			};
+
+			Vector3 screenA = Transform(Transform(a, viewProjectionMatrix), viewportMatrix);
+			Vector3 screenB = Transform(Transform(b, viewProjectionMatrix), viewportMatrix);
+			Vector3 screenC = Transform(Transform(c, viewProjectionMatrix), viewportMatrix);
+
+			Novice::DrawLine(static_cast<int>(screenA.x), static_cast<int>(screenA.y), static_cast<int>(screenB.x),
+			                 static_cast<int>(screenB.y), color);
+			Novice::DrawLine(static_cast<int>(screenA.x), static_cast<int>(screenA.y), static_cast<int>(screenC.x),
+			                 static_cast<int>(screenC.y), color);
+		}
+	}
 }

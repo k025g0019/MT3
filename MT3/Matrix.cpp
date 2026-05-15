@@ -3,6 +3,8 @@
 #include <Novice.h>
 #include <cmath>
 
+#include "Vector&Matrix.h"
+
 void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label) {
 	Novice::ScreenPrintf(x, y, "%s", label);
 	for (int i = 0; i < 4; ++i) {
@@ -225,4 +227,40 @@ Matrix4x4 MakeViewportMatrix(
 	result.matrix[3][3] = 1.0f;
 
 	return result;
+}
+
+void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix) {
+	constexpr float kGridHalfWidth = 2.0f;
+	constexpr uint32_t kSubdivision = 10;
+	constexpr float kGridEvery = (kGridHalfWidth * 2.0f) / static_cast<float>(kSubdivision);
+
+	for (uint32_t xIndex = 0; xIndex <= kSubdivision; ++xIndex) {
+		float x = -kGridHalfWidth + xIndex * kGridEvery;
+		Vector3 start{x, 0.0f, -kGridHalfWidth};
+		Vector3 end{x, 0.0f, kGridHalfWidth};
+
+		Vector3 ndcStart = Transform(start, viewProjectionMatrix);
+		Vector3 ndcEnd = Transform(end, viewProjectionMatrix);
+		Vector3 screenStart = Transform(ndcStart, viewportMatrix);
+		Vector3 screenEnd = Transform(ndcEnd, viewportMatrix);
+
+		uint32_t color = (std::fabs(x) < 0.0001f) ? 0xFFFFFFFF : 0xAAAAAAFF;
+		Novice::DrawLine(
+			int(screenStart.x), int(screenStart.y), int(screenEnd.x), int(screenEnd.y), color);
+	}
+
+	for (uint32_t zIndex = 0; zIndex <= kSubdivision; ++zIndex) {
+		float z = -kGridHalfWidth + zIndex * kGridEvery;
+		Vector3 start{-kGridHalfWidth, 0.0f, z};
+		Vector3 end{kGridHalfWidth, 0.0f, z};
+
+		Vector3 ndcStart = Transform(start, viewProjectionMatrix);
+		Vector3 ndcEnd = Transform(end, viewProjectionMatrix);
+		Vector3 screenStart = Transform(ndcStart, viewportMatrix);
+		Vector3 screenEnd = Transform(ndcEnd, viewportMatrix);
+
+		uint32_t color = (std::fabs(z) < 0.0001f) ? 0xFFFFFFFF : 0xAAAAAAFF;
+		Novice::DrawLine(
+			int(screenStart.x), int(screenStart.y), int(screenEnd.x), int(screenEnd.y), color);
+	}
 }
