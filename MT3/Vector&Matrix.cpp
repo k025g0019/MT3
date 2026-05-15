@@ -143,3 +143,82 @@ bool IsCollision(const Sphere& s1, const Sphere& s2) {
 	float distance = Length(Subtract(s1.center, s2.center));
 	return distance <= s1.radius + s2.radius;
 }
+
+bool PlaneIsCollision(const Sphere& sphere, const Plane& plane) {
+	float distance = Dot(sphere.center, plane.normal) - plane.distance;
+	return std::fabs(distance) <= sphere.radius;
+}
+
+Vector3 Perpendicular(const Vector3& v) {
+	if (v.x != 0.0f || v.y != 0.0f) {
+		return {-v.y, v.x, 0.0f};
+	}
+	return {0.0f, -v.z, v.y};
+}
+
+void DrawPlane(
+	const Plane& plane,
+	const Matrix4x4& viewProjectionMatrix,
+	const Matrix4x4& viewportMatrix,
+	uint32_t color
+) {
+	Vector3 center = Multiply(plane.distance, plane.normal);
+
+	Vector3 perpendicular[4];
+	perpendicular[0] = Perpendicular(plane.normal);
+	perpendicular[1] = {
+		-perpendicular[0].x,
+		-perpendicular[0].y,
+		-perpendicular[0].z
+	};
+
+	perpendicular[2] = Cross(plane.normal, perpendicular[0]);
+	perpendicular[3] = {
+		-perpendicular[2].x,
+		-perpendicular[2].y,
+		-perpendicular[2].z
+	};
+
+	Vector3 points[4];
+
+	for (int32_t index = 0; index < 4; ++index) {
+		Vector3 extend = Multiply(2.0f, perpendicular[index]);
+		Vector3 point = Add(center, extend);
+		points[index] = Transform(
+			Transform(point, viewProjectionMatrix),
+			viewportMatrix
+		);
+	}
+
+	Novice::DrawLine(
+		static_cast<int>(points[0].x),
+		static_cast<int>(points[0].y),
+		static_cast<int>(points[2].x),
+		static_cast<int>(points[2].y),
+		color
+	);
+
+	Novice::DrawLine(
+		static_cast<int>(points[2].x),
+		static_cast<int>(points[2].y),
+		static_cast<int>(points[1].x),
+		static_cast<int>(points[1].y),
+		color
+	);
+
+	Novice::DrawLine(
+		static_cast<int>(points[1].x),
+		static_cast<int>(points[1].y),
+		static_cast<int>(points[3].x),
+		static_cast<int>(points[3].y),
+		color
+	);
+
+	Novice::DrawLine(
+		static_cast<int>(points[3].x),
+		static_cast<int>(points[3].y),
+		static_cast<int>(points[0].x),
+		static_cast<int>(points[0].y),
+		color
+	);
+}

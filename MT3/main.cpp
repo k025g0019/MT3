@@ -21,6 +21,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Vector3 cameraRotate{0.26f, 0.0f, 0.0f};
 	Sphere sphere2{{1.0f, 1.0f, 0.0f}, 1.0f};
 
+	Plane plane{{0.0f, 1.0f, 0.0f}, 0.0f};
 	while (Novice::ProcessMessage() == 0) {
 		Novice::BeginFrame();
 
@@ -38,10 +39,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
 
-		DrawSphere(sphere2, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
 
 
-		if (IsCollision(sphere, sphere2)) {
+		if (PlaneIsCollision(sphere, plane)) {
 			DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, RED);
 		}
 		else {
@@ -51,7 +52,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		ImGui::Begin("Debug Window");
 		ImGui::DragFloat3("Camera Translate", &cameraTranslate.x, 0.1f);
 		ImGui::DragFloat3("Camera Rotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat4("Sphere2 Translate", &sphere2.center.x, 0.1f);
+		ImGui::DragFloat4("Sphere2 Translate", &sphere.center.x, 0.1f);
 
 		ImGui::End();
 		Novice::EndFrame();
