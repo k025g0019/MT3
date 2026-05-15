@@ -38,7 +38,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
-		Vector3 project = Project(point, Subtract(segment.end, segment.start));
+		Vector3 project = Project(point, Subtract(segment.diff, segment.origin));
 		Vector3 closestPoint = ClosestPoint(point, segment);
 
 		Sphere pointSphere{point, 0.01f};
@@ -46,8 +46,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		DrawSphere(pointSphere, viewProjectionMatrix, viewportMatrix, RED);
 		DrawSphere(closestPointSphere, viewProjectionMatrix, viewportMatrix, BLACK);
 
-		Vector3 start = Transform(Transform(segment.start, viewProjectionMatrix), viewportMatrix);
-		Vector3 end = Transform(Transform(segment.end, viewProjectionMatrix), viewportMatrix);
+		Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
+		Vector3 end = Transform(Transform(segment.diff, viewProjectionMatrix), viewportMatrix);
 		Novice::DrawLine(static_cast<int>(start.x), static_cast<int>(start.y), static_cast<int>(end.x),
 		                 static_cast<int>(end.y), WHITE);
 
@@ -55,7 +55,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		ImGui::Begin("Debug Window");
 		ImGui::DragFloat3("Camera Translate", &cameraTranslate.x, 0.1f);
 		ImGui::DragFloat3("Camera Rotate", &cameraRotate.x, 0.01f);
-		ImGui::InputFloat3("Priject", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat3("Project", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 		ImGui::End();
 		Novice::EndFrame();

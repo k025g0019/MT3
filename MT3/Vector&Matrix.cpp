@@ -132,9 +132,9 @@ Vector3 Project(const Vector3& v1, const Vector3& v2) {
 
 
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
-	Vector3 segmentVector = Subtract(segment.end, segment.start);
-	Vector3 pointVector = Subtract(point, segment.start);
+	Vector3 segmentVector = Subtract(segment.diff, segment.origin);
+	Vector3 pointVector = Subtract(point, segment.origin);
 	float t = Dot(pointVector, segmentVector) / Dot(segmentVector, segmentVector);
 
-	return Add(segment.start, Multiply(t, segmentVector));
+	return Add(segment.origin, Multiply(t, segmentVector));
 }

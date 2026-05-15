@@ -8,8 +8,8 @@ struct Sphere {
 };
 
 struct Segment {
-	Vector3 start;
-	Vector3 end;
+	Vector3 origin;
+	Vector3 diff;
 };
 
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
