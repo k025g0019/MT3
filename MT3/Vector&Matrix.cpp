@@ -1,5 +1,7 @@
 #include "Vector&Matrix.h"
 
+#include <algorithm>
+
 #include "Novice.h"
 
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
@@ -117,4 +119,22 @@ void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, con
 			                 static_cast<int>(screenC.y), color);
 		}
 	}
+}
+
+Vector3 Project(const Vector3& v1, const Vector3& v2) {
+	float dotProduct = Dot(v1, v2);
+	float lengthSquared = Dot(v2, v2);
+	if (lengthSquared == 0.0f) {
+		return {0.0f, 0.0f, 0.0f};
+	}
+	return Multiply(dotProduct / lengthSquared, v2);
+}
+
+
+Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
+	Vector3 segmentVector = Subtract(segment.end, segment.start);
+	Vector3 pointVector = Subtract(point, segment.start);
+	float t = Dot(pointVector, segmentVector) / Dot(segmentVector, segmentVector);
+
+	return Add(segment.start, Multiply(t, segmentVector));
 }
