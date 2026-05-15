@@ -39,9 +39,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 
 		DrawSphere(sphere2, viewProjectionMatrix, viewportMatrix, WHITE);
-		float distance = Length(Subtract(sphere.center, sphere2.center));
 
-		if (distance <= sphere.radius + sphere2.radius) {
+
+		if (IsCollision(sphere, sphere2)) {
 			DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, RED);
 		}
 		else {
