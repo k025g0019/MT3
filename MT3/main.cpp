@@ -19,8 +19,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Sphere sphere{{0.0f, 0.0f, 0.0f}, 1.0f};
 	Vector3 cameraTranslate{0.0f, 1.9f, -6.49f};
 	Vector3 cameraRotate{0.26f, 0.0f, 0.0f};
-	Segment segment{{-2.0f, -1.0f, 0.0f}, {3.0f, 2.0f, 2.0f}};
-	Vector3 point{-1.5f, 0.6f, 0.6f};
+	Sphere sphere2{{1.0f, 1.0f, 0.0f}, 1.0f};
 
 	while (Novice::ProcessMessage() == 0) {
 		Novice::BeginFrame();
@@ -38,24 +37,21 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
-		Vector3 project = Project(point, Subtract(segment.end, segment.start));
-		Vector3 closestPoint = ClosestPoint(point, segment);
 
-		Sphere pointSphere{point, 0.01f};
-		Sphere closestPointSphere{closestPoint, 0.01f};
-		DrawSphere(pointSphere, viewProjectionMatrix, viewportMatrix, RED);
-		DrawSphere(closestPointSphere, viewProjectionMatrix, viewportMatrix, BLACK);
+		DrawSphere(sphere2, viewProjectionMatrix, viewportMatrix, WHITE);
+		float distance = Length(Subtract(sphere.center, sphere2.center));
 
-		Vector3 start = Transform(Transform(segment.start, viewProjectionMatrix), viewportMatrix);
-		Vector3 end = Transform(Transform(segment.end, viewProjectionMatrix), viewportMatrix);
-		Novice::DrawLine(static_cast<int>(start.x), static_cast<int>(start.y), static_cast<int>(end.x),
-		                 static_cast<int>(end.y), WHITE);
-
+		if (distance <= sphere.radius + sphere2.radius) {
+			DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, RED);
+		}
+		else {
+			DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
+		}
 
 		ImGui::Begin("Debug Window");
 		ImGui::DragFloat3("Camera Translate", &cameraTranslate.x, 0.1f);
 		ImGui::DragFloat3("Camera Rotate", &cameraRotate.x, 0.01f);
-		ImGui::InputFloat3("Priject", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::DragFloat4("Sphere2 Translate", &sphere2.center.x, 0.1f);
 
 		ImGui::End();
 		Novice::EndFrame();
