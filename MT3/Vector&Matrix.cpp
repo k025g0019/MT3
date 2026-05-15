@@ -138,3 +138,8 @@ Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
 
 	return Add(segment.origin, Multiply(t, segmentVector));
 }
+
+bool IsCollision(const Sphere& s1, const Sphere& s2) {
+	float distance = Length(Subtract(s1.center, s2.center));
+	return distance <= s1.radius + s2.radius;
+}
