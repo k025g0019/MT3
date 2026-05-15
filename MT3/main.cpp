@@ -1,52 +1,70 @@
 #include <Novice.h>
 
-const char kWindowTitle[] = "学籍番号";
+#ifdef _DEBUG
+#include <imgui.h>
+#endif
 
-// Windowsアプリでのエントリーポイント(main関数)
+#include "Vector&Matrix.h"
+
+constexpr char kWindowTitle[] = "LE1B_26";
+constexpr int kWindowWidth = 1280;
+constexpr int kWindowHeight = 720;
+
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
+	Novice::Initialize(kWindowTitle, kWindowWidth, kWindowHeight);
 
-	// ライブラリの初期化
-	Novice::Initialize(kWindowTitle, 1280, 720);
-
-	// キー入力結果を受け取る箱
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
-	// ウィンドウの×ボタンが押されるまでループ
+	Sphere sphere{{0.0f, 0.0f, 0.0f}, 1.0f};
+	Vector3 cameraTranslate{0.0f, 1.9f, -6.49f};
+	Vector3 cameraRotate{0.26f, 0.0f, 0.0f};
+	Segment segment{{-2.0f, -1.0f, 0.0f}, {3.0f, 2.0f, 2.0f}};
+	Vector3 point{-1.5f, 0.6f, 0.6f};
+
 	while (Novice::ProcessMessage() == 0) {
-		// フレームの開始
 		Novice::BeginFrame();
 
-		// キー入力を受け取る
 		memcpy(preKeys, keys, 256);
 		Novice::GetHitKeyStateAll(keys);
 
-		///
-		/// ↓更新処理ここから
-		///
+		Matrix4x4 cameraMatrix = MakeAffineMatrix({1.0f, 1.0f, 1.0f}, cameraRotate, cameraTranslate);
+		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(
+			0.45f, static_cast<float>(kWindowWidth) / static_cast<float>(kWindowHeight), 0.1f, 100.0f);
+		Matrix4x4 viewProjectionMatrix = Multiply(viewMatrix, projectionMatrix);
+		Matrix4x4 viewportMatrix = MakeViewportMatrix(
+			0.0f, 0.0f, static_cast<float>(kWindowWidth), static_cast<float>(kWindowHeight), 0.0f, 1.0f);
 
-		///
-		/// ↑更新処理ここまで
-		///
+		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
-		///
-		/// ↓描画処理ここから
-		///
+		Vector3 project = Project(point, Subtract(segment.end, segment.start));
+		Vector3 closestPoint = ClosestPoint(point, segment);
 
-		///
-		/// ↑描画処理ここまで
-		///
+		Sphere pointSphere{point, 0.01f};
+		Sphere closestPointSphere{closestPoint, 0.01f};
+		DrawSphere(pointSphere, viewProjectionMatrix, viewportMatrix, RED);
+		DrawSphere(closestPointSphere, viewProjectionMatrix, viewportMatrix, BLACK);
 
-		// フレームの終了
+		Vector3 start = Transform(Transform(segment.start, viewProjectionMatrix), viewportMatrix);
+		Vector3 end = Transform(Transform(segment.end, viewProjectionMatrix), viewportMatrix);
+		Novice::DrawLine(static_cast<int>(start.x), static_cast<int>(start.y), static_cast<int>(end.x),
+		                 static_cast<int>(end.y), WHITE);
+
+
+		ImGui::Begin("Debug Window");
+		ImGui::DragFloat3("Camera Translate", &cameraTranslate.x, 0.1f);
+		ImGui::DragFloat3("Camera Rotate", &cameraRotate.x, 0.01f);
+		ImGui::InputFloat3("Priject", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+
+		ImGui::End();
 		Novice::EndFrame();
 
-		// ESCキーが押されたらループを抜ける
 		if (preKeys[DIK_ESCAPE] == 0 && keys[DIK_ESCAPE] != 0) {
 			break;
 		}
 	}
 
-	// ライブラリの終了
 	Novice::Finalize();
 	return 0;
 }
