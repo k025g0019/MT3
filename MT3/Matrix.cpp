@@ -180,7 +180,7 @@ Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspect, float nearZ, float 
 	return result;
 }
 
-//正射影行列
+
 // 正射影行列
 Matrix4x4 MakeOrthographicMatrix(
 	float left,
