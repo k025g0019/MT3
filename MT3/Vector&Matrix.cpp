@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+
 #include "Novice.h"
 
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
@@ -343,4 +344,14 @@ bool AABBToAABBIsCollision(const AABB& aabb1, const AABB& aabb2) {
 		return true;
 	}
 	return false;
+}
+
+
+bool AABBToSphereIsCollision(const AABB& aabb, const Sphere& sphere) {
+	Vector3 closestPoint(std::clamp(sphere.center.x, aabb.min.x, aabb.max.x),
+	                     std::clamp(sphere.center.y, aabb.min.y, aabb.max.y),
+	                     std::clamp(sphere.center.z, aabb.min.z, aabb.max.z));
+
+	float distance = Length(Subtract(closestPoint, sphere.center));
+	return distance <= sphere.radius;
 }

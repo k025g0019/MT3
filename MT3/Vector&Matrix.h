@@ -61,3 +61,5 @@ bool TriangleToSegmentIsCollision(const Triangle& triangle, const Segment& segme
 bool AABBToAABBIsCollision(const AABB& aabb1, const AABB& aabb2);
 
 void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+
+bool AABBToSphereIsCollision(const AABB& aabb, const Sphere& sphere);
