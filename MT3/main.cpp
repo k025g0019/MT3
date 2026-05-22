@@ -22,7 +22,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 
 	Segment segment{{-1.0f, 1.0f, 0.0f}, {2.0f, 0.0f, 0.0f}};
-	Plane plane{{0.0f, 1.0f, 0.0f}, 0.0f};
+	Triangle triangle{{{-1.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 1.0f}, {0.0f, 2.0f, 1.0f}}};
 	while (Novice::ProcessMessage() == 0) {
 		Novice::BeginFrame();
 
@@ -40,17 +40,18 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
 
-		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);
 
-		if (SegmentIsCollsion(segment, plane)) {
+		if (TriangleToSegmentIsCollision(triangle, segment)) {
 			DrawSegment(segment, viewProjectionMatrix, viewportMatrix, RED);
 		}
 		else {
 			DrawSegment(segment, viewProjectionMatrix, viewportMatrix, WHITE);
 		}
 		ImGui::Begin("Debug Window");
-		ImGui::DragFloat3("Plane.Normal", &plane.normal.x, 0.1f);
-		ImGui::DragFloat("Plane.Distance", &plane.distance, 0.1f);
+		ImGui::DragFloat3("Triangle.Vertex0", &triangle.vertices[0].x, 0.1f);
+		ImGui::DragFloat3("Triangle.Vertex1", &triangle.vertices[1].x, 0.1f);
+		ImGui::DragFloat3("Triangle.Vertex2", &triangle.vertices[2].x, 0.1f);
 		ImGui::DragFloat3("Segment.Origin", &segment.origin.x, 0.1f);
 		ImGui::DragFloat3("Segment.Diff", &segment.diff.x, 0.1f);
 
