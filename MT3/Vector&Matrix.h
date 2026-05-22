@@ -26,6 +26,12 @@ struct AABB {
 	Vector3 max;
 };
 
+struct OBB {
+	Vector3 center;
+	Vector3 orientations[3];
+	Vector3 size;
+};
+
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 Matrix4x4 MakeTranslationMatrix(const Vector3& translation);
 Matrix4x4 MakeScaleMatrix(const Vector3& scale);
@@ -65,3 +71,7 @@ void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Mat
 bool AABBToSphereIsCollision(const AABB& aabb, const Sphere& sphere);
 
 bool AABBIntersectsSegment(const AABB& aabb, const Segment& segment);
+
+bool OBBToSphereIsCollision(const OBB& obb, const Sphere& sphere);
+
+void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);

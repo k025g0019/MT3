@@ -6,6 +6,33 @@
 
 #include "Novice.h"
 
+namespace {
+	Matrix4x4 MakeOBBWorldMatrix(const OBB& obb) {
+		Matrix4x4 worldMatrix{};
+		worldMatrix.matrix[0][0] = obb.orientations[0].x;
+		worldMatrix.matrix[0][1] = obb.orientations[0].y;
+		worldMatrix.matrix[0][2] = obb.orientations[0].z;
+		worldMatrix.matrix[0][3] = 0.0f;
+
+		worldMatrix.matrix[1][0] = obb.orientations[1].x;
+		worldMatrix.matrix[1][1] = obb.orientations[1].y;
+		worldMatrix.matrix[1][2] = obb.orientations[1].z;
+		worldMatrix.matrix[1][3] = 0.0f;
+
+		worldMatrix.matrix[2][0] = obb.orientations[2].x;
+		worldMatrix.matrix[2][1] = obb.orientations[2].y;
+		worldMatrix.matrix[2][2] = obb.orientations[2].z;
+		worldMatrix.matrix[2][3] = 0.0f;
+
+		worldMatrix.matrix[3][0] = obb.center.x;
+		worldMatrix.matrix[3][1] = obb.center.y;
+		worldMatrix.matrix[3][2] = obb.center.z;
+		worldMatrix.matrix[3][3] = 1.0f;
+
+		return worldMatrix;
+	}
+}
+
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
 	Vector3 result;
 	result.x = vector.x * matrix.matrix[0][0] + vector.y * matrix.matrix[1][0] + vector.z * matrix.matrix[2][0] + matrix
@@ -398,4 +425,62 @@ bool AABBIntersectsSegment(const AABB& aabb, const Segment& segment) {
 	}
 
 	return true;
+}
+
+bool OBBToSphereIsCollision(const OBB& obb, const Sphere& sphere) {
+	Matrix4x4 obbWorldMatrix = MakeOBBWorldMatrix(obb);
+	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
+
+	Vector3 centerInOBBLocalSpace = Transform(sphere.center, obbWorldMatrixInverse);
+	AABB aabbOBBLocal{
+		.min{-obb.size.x, -obb.size.y, -obb.size.z},
+		.max{obb.size.x, obb.size.y, obb.size.z},
+	};
+	Sphere sphereOBBLocal{
+		.center{centerInOBBLocalSpace},
+		.radius{sphere.radius},
+	};
+
+	return AABBToSphereIsCollision(aabbOBBLocal, sphereOBBLocal);
+}
+
+void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+	Vector3 localVertices[8] = {
+		{-obb.size.x, -obb.size.y, -obb.size.z},
+		{obb.size.x, -obb.size.y, -obb.size.z},
+		{obb.size.x, obb.size.y, -obb.size.z},
+		{-obb.size.x, obb.size.y, -obb.size.z},
+		{-obb.size.x, -obb.size.y, obb.size.z},
+		{obb.size.x, -obb.size.y, obb.size.z},
+		{obb.size.x, obb.size.y, obb.size.z},
+		{-obb.size.x, obb.size.y, obb.size.z},
+	};
+
+	Vector3 screenVertices[8];
+	Matrix4x4 obbWorldMatrix = MakeOBBWorldMatrix(obb);
+	Matrix4x4 worldViewProjectionMatrix = Multiply(obbWorldMatrix, viewProjectionMatrix);
+	Matrix4x4 worldViewProjectionViewportMatrix = Multiply(worldViewProjectionMatrix, viewportMatrix);
+
+	for (int32_t index = 0; index < 8; ++index) {
+		screenVertices[index] = Transform(localVertices[index], worldViewProjectionViewportMatrix);
+	}
+
+	int32_t edges[12][2] = {
+		{0, 1}, {1, 2}, {2, 3}, {3, 0},
+		{4, 5}, {5, 6}, {6, 7}, {7, 4},
+		{0, 4}, {1, 5}, {2, 6}, {3, 7},
+	};
+
+	for (int32_t index = 0; index < 12; ++index) {
+		const Vector3& start = screenVertices[edges[index][0]];
+		const Vector3& end = screenVertices[edges[index][1]];
+
+		Novice::DrawLine(
+			static_cast<int>(start.x),
+			static_cast<int>(start.y),
+			static_cast<int>(end.x),
+			static_cast<int>(end.y),
+			color
+		);
+	}
 }

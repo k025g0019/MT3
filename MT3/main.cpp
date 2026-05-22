@@ -1,6 +1,6 @@
 #include <Novice.h>
 
-#ifdef _DEBUG
+#ifdef USE_IMGUI
 #include <imgui.h>
 #endif
 
@@ -19,17 +19,23 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
+	Vector3 rotate{0.0f, 0.0f, 0.0f};
 
-	AABB aabb1{
-		.min{-0.5f, -0.5f, -0.5f},
-		.max{0.0f, 0.0f, 0.0f},
+	OBB obb{
+		.center{-1.0f, 0.0f, 0.0f},
+		.orientations{
+			{1.0f, 0.0f, 0.0f},
+			{0.0f, 1.0f, 0.0f},
+			{0.0f, 0.0f, 1.0f},
+		},
+		.size{0.5f, 0.5f, 0.5f},
 	};
 
-	Segment segment{
-		.origin{0.0f, 0.0f, 0.0f},
-		.diff{0.5f, 0.0f, 0.0f},
+	Sphere sphere{
+		.center{0.0f, 0.0f, 0.0f},
+		.radius{0.5f},
 	};
-
+	uint32_t obbColor = WHITE;
 	OrbitCamera orbitCamera{};
 	InitializeOrbitCamera(orbitCamera, {0.0f, 0.0f, 0.0f}, {0.0f, 1.9f, -6.49f});
 
@@ -39,7 +45,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		memcpy(preKeys, keys, 256);
 		Novice::GetHitKeyStateAll(keys);
 
-#ifdef _DEBUG
+#ifdef USE_IMGUI
 		const bool canControlCamera = !ImGui::GetIO().WantCaptureMouse;
 #else
 		const bool canControlCamera = true;
@@ -48,6 +54,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		Vector3 cameraTranslate = GetOrbitCameraPosition(orbitCamera);
 		Vector3 cameraRotate = GetOrbitCameraRotation(orbitCamera);
+		obb.size.x = (std::max)(obb.size.x, 0.01f);
+		obb.size.y = (std::max)(obb.size.y, 0.01f);
+		obb.size.z = (std::max)(obb.size.z, 0.01f);
+		sphere.radius = (std::max)(sphere.radius, 0.01f);
 
 		Matrix4x4 cameraMatrix = MakeAffineMatrix({1.0f, 1.0f, 1.0f}, cameraRotate, cameraTranslate);
 		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
@@ -57,26 +67,36 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(
 			0.0f, 0.0f, static_cast<float>(kWindowWidth), static_cast<float>(kWindowHeight), 0.0f, 1.0f);
 
-		DrawGrid(viewProjectionMatrix, viewportMatrix);
+		Matrix4x4 rotateMatrix = Multiply(
+			MakeRotateXMatrix(rotate.x), Multiply(MakeRotateYMatrix(rotate.y), MakeRotateZMatrix(rotate.z)));
+		obb.orientations[0] = {rotateMatrix.matrix[0][0], rotateMatrix.matrix[0][1], rotateMatrix.matrix[0][2]};
+		obb.orientations[1] = {rotateMatrix.matrix[1][0], rotateMatrix.matrix[1][1], rotateMatrix.matrix[1][2]};
+		obb.orientations[2] = {rotateMatrix.matrix[2][0], rotateMatrix.matrix[2][1], rotateMatrix.matrix[2][2]};
 
 
-		DrawSegment(segment, viewProjectionMatrix, viewportMatrix, WHITE);
-
-		if (AABBIntersectsSegment(aabb1, segment)) {
-			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, RED);
+		if (OBBToSphereIsCollision(obb, sphere)) {
+			obbColor = RED;
 		}
 		else {
-			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
+			obbColor = WHITE;
 		}
+		DrawGrid(viewProjectionMatrix, viewportMatrix);
+		DrawOBB(obb, viewProjectionMatrix, viewportMatrix, obbColor);
+		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
 
+#ifdef USE_IMGUI
 		ImGui::Begin("Debug Window");
-		ImGui::DragFloat3("aabb.min", &aabb1.min.x, 0.1f);
-		ImGui::DragFloat3("aabb.max", &aabb1.max.x, 0.1f);
-		ImGui::DragFloat3("segment.origin", &segment.origin.x, 0.1f);
-		ImGui::DragFloat3("segment.diff", &segment.diff.x, 0.1f);
-
+		ImGui::DragFloat3("rotate", &rotate.x, 0.01f);
+		ImGui::DragFloat3("obb.center", &obb.center.x, 0.1f);
+		ImGui::DragFloat3("obb.orientations[0]", &obb.orientations[0].x, 0.1f);
+		ImGui::DragFloat3("obb.orientations[1]", &obb.orientations[1].x, 0.1f);
+		ImGui::DragFloat3("obb.orientations[2]", &obb.orientations[2].x, 0.1f);
+		ImGui::DragFloat3("obb.size", &obb.size.x, 0.1f, 0.01f);
+		ImGui::DragFloat3("sphere.center", &sphere.center.x, 0.1f);
+		ImGui::DragFloat("sphere.radius", &sphere.radius, 0.1f, 0.01f);
 
 		ImGui::End();
+#endif
 
 		Novice::EndFrame();
 
