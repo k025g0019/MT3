@@ -287,3 +287,60 @@ bool TriangleToSegmentIsCollision(const Triangle& triangle, const Segment& segme
 
 	return false;
 }
+
+
+void DrawAABB(
+	const AABB& aabb,
+	const Matrix4x4& viewProjectionMatrix,
+	const Matrix4x4& viewportMatrix,
+	uint32_t color
+) {
+	Vector3 vertices[8] = {
+		{aabb.min.x, aabb.min.y, aabb.min.z}, // 0
+		{aabb.max.x, aabb.min.y, aabb.min.z}, // 1
+		{aabb.max.x, aabb.max.y, aabb.min.z}, // 2
+		{aabb.min.x, aabb.max.y, aabb.min.z}, // 3
+
+		{aabb.min.x, aabb.min.y, aabb.max.z}, // 4
+		{aabb.max.x, aabb.min.y, aabb.max.z}, // 5
+		{aabb.max.x, aabb.max.y, aabb.max.z}, // 6
+		{aabb.min.x, aabb.max.y, aabb.max.z}, // 7
+	};
+
+	Vector3 screenVertices[8];
+
+	Matrix4x4 matrix = Multiply(viewProjectionMatrix, viewportMatrix);
+
+	for (int i = 0; i < 8; i++) {
+		screenVertices[i] = Transform(vertices[i], matrix);
+	}
+
+	int32_t edges[12][2] = {
+		{0, 1}, {1, 2}, {2, 3}, {3, 0},
+		{4, 5}, {5, 6}, {6, 7}, {7, 4},
+		{0, 4}, {1, 5}, {2, 6}, {3, 7},
+	};
+
+	for (int i = 0; i < 12; i++) {
+		const Vector3& start = screenVertices[edges[i][0]];
+		const Vector3& end = screenVertices[edges[i][1]];
+
+		Novice::DrawLine(
+			static_cast<int>(start.x),
+			static_cast<int>(start.y),
+			static_cast<int>(end.x),
+			static_cast<int>(end.y),
+			color
+		);
+	}
+}
+
+
+bool AABBToAABBIsCollision(const AABB& aabb1, const AABB& aabb2) {
+	if ((aabb1.min.x <= aabb2.max.x && aabb1.max.x >= aabb2.min.x) &&
+		(aabb1.min.y <= aabb2.max.y && aabb1.max.y >= aabb2.min.y) &&
+		(aabb1.min.z <= aabb2.max.z && aabb1.max.z >= aabb2.min.z)) {
+		return true;
+	}
+	return false;
+}

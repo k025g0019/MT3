@@ -21,6 +21,11 @@ struct Triangle {
 	Vector3 vertices[3];
 };
 
+struct AABB {
+	Vector3 min;
+	Vector3 max;
+};
+
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 Matrix4x4 MakeTranslationMatrix(const Vector3& translation);
 Matrix4x4 MakeScaleMatrix(const Vector3& scale);
@@ -52,3 +57,7 @@ void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatri
                   uint32_t color);
 
 bool TriangleToSegmentIsCollision(const Triangle& triangle, const Segment& segment);
+
+bool AABBToAABBIsCollision(const AABB& aabb1, const AABB& aabb2);
+
+void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);

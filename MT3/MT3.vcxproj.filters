@@ -28,6 +28,9 @@
     <ClCompile Include="Matrix.cpp">
       <Filter>KamataEngine\Source</Filter>
     </ClCompile>
+    <ClCompile Include="OrbitCamera.cpp">
+      <Filter>KamataEngine\Source</Filter>
+    </ClCompile>
     <ClCompile Include="Vector.cpp">
       <Filter>KamataEngine\Source</Filter>
     </ClCompile>
@@ -124,6 +127,9 @@
       <Filter>KamataEngine\hedar</Filter>
     </ClInclude>
     <ClInclude Include="Vector&amp;Matrix.h">
+      <Filter>KamataEngine\hedar</Filter>
+    </ClInclude>
+    <ClInclude Include="OrbitCamera.h">
       <Filter>KamataEngine\hedar</Filter>
     </ClInclude>
   </ItemGroup>

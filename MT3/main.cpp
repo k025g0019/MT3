@@ -4,6 +4,9 @@
 #include <imgui.h>
 #endif
 
+#include <algorithm>
+
+#include "OrbitCamera.h"
 #include "Vector&Matrix.h"
 
 constexpr char kWindowTitle[] = "LE1B_26";
@@ -17,17 +20,34 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	char preKeys[256] = {0};
 
 
-	Vector3 cameraTranslate{0.0f, 1.9f, -6.49f};
-	Vector3 cameraRotate{0.26f, 0.0f, 0.0f};
+	AABB aabb1{
+		.min{-0.5f, -0.5f, -0.5f},
+		.max{0.0f, 0.0f, 0.0f},
+	};
 
+	AABB aabb2{
+		.min{0.2f, 0.2f, 0.2f},
+		.max{1.0f, 1.0f, 1.0f},
+	};
 
-	Segment segment{{-1.0f, 1.0f, 0.0f}, {2.0f, 0.0f, 0.0f}};
-	Triangle triangle{{{-1.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 1.0f}, {0.0f, 2.0f, 1.0f}}};
+	OrbitCamera orbitCamera{};
+	InitializeOrbitCamera(orbitCamera, {0.0f, 0.0f, 0.0f}, {0.0f, 1.9f, -6.49f});
+
 	while (Novice::ProcessMessage() == 0) {
 		Novice::BeginFrame();
 
 		memcpy(preKeys, keys, 256);
 		Novice::GetHitKeyStateAll(keys);
+
+#ifdef _DEBUG
+		const bool canControlCamera = !ImGui::GetIO().WantCaptureMouse;
+#else
+		const bool canControlCamera = true;
+#endif
+		UpdateOrbitCamera(orbitCamera, canControlCamera);
+
+		Vector3 cameraTranslate = GetOrbitCameraPosition(orbitCamera);
+		Vector3 cameraRotate = GetOrbitCameraRotation(orbitCamera);
 
 		Matrix4x4 cameraMatrix = MakeAffineMatrix({1.0f, 1.0f, 1.0f}, cameraRotate, cameraTranslate);
 		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
@@ -40,23 +60,39 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
 
-		DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawAABB(aabb2, viewProjectionMatrix, viewportMatrix, WHITE);
 
-		if (TriangleToSegmentIsCollision(triangle, segment)) {
-			DrawSegment(segment, viewProjectionMatrix, viewportMatrix, RED);
+		if (AABBToAABBIsCollision(aabb1, aabb2)) {
+			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, RED);
 		}
 		else {
-			DrawSegment(segment, viewProjectionMatrix, viewportMatrix, WHITE);
+			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
 		}
-		ImGui::Begin("Debug Window");
-		ImGui::DragFloat3("Triangle.Vertex0", &triangle.vertices[0].x, 0.1f);
-		ImGui::DragFloat3("Triangle.Vertex1", &triangle.vertices[1].x, 0.1f);
-		ImGui::DragFloat3("Triangle.Vertex2", &triangle.vertices[2].x, 0.1f);
-		ImGui::DragFloat3("Segment.Origin", &segment.origin.x, 0.1f);
-		ImGui::DragFloat3("Segment.Diff", &segment.diff.x, 0.1f);
 
+
+		ImGui::Begin("Debug Window");
+		ImGui::DragFloat3("aabb1.min", &aabb1.min.x, 0.1f);
+		ImGui::DragFloat3("aabb1.max", &aabb1.max.x, 0.1f);
+		ImGui::DragFloat3("aabb2.min", &aabb2.min.x, 0.1f);
+		ImGui::DragFloat3("aabb2.max", &aabb2.max.x, 0.1f);
+		ImGui::Text("Mouse: Left drag rotate / Wheel zoom");
+		ImGui::DragFloat3("camera.target", &orbitCamera.target.x, 0.1f);
+		ImGui::DragFloat("camera.distance", &orbitCamera.distance, 0.1f, 2.0f, 20.0f);
 
 		ImGui::End();
+
+		aabb1.min.x = (std::min)(aabb1.min.x, aabb1.max.x - 0.1f);
+		aabb1.min.y = (std::min)(aabb1.min.y, aabb1.max.y - 0.1f);
+		aabb1.min.z = (std::min)(aabb1.min.z, aabb1.max.z - 0.1f);
+		aabb1.max.x = (std::max)(aabb1.max.x, aabb1.min.x + 0.1f);
+		aabb1.max.y = (std::max)(aabb1.max.y, aabb1.min.y + 0.1f);
+		aabb1.max.z = (std::max)(aabb1.max.z, aabb1.min.z + 0.1f);
+		aabb2.min.x = (std::min)(aabb2.min.x, aabb2.max.x - 0.1f);
+		aabb2.min.y = (std::min)(aabb2.min.y, aabb2.max.y - 0.1f);
+		aabb2.min.z = (std::min)(aabb2.min.z, aabb2.max.z - 0.1f);
+		aabb2.max.x = (std::max)(aabb2.max.x, aabb2.min.x + 0.1f);
+		aabb2.max.y = (std::max)(aabb2.max.y, aabb2.min.y + 0.1f);
+		aabb2.max.z = (std::max)(aabb2.max.z, aabb2.min.z + 0.1f);
 		Novice::EndFrame();
 
 		if (preKeys[DIK_ESCAPE] == 0 && keys[DIK_ESCAPE] != 0) {
