@@ -243,3 +243,47 @@ void DrawSegment(const Segment& segment, const Matrix4x4& viewProjectionMatrix, 
 		color
 	);
 }
+
+void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix,
+                  uint32_t color) {
+	Vector3 screenVertices[3];
+	for (int32_t index = 0; index < 3; ++index) {
+		screenVertices[index] = Transform(Transform(triangle.vertices[index], viewProjectionMatrix), viewportMatrix);
+	}
+	Novice::DrawLine(
+		static_cast<int>(screenVertices[0].x),
+		static_cast<int>(screenVertices[0].y),
+		static_cast<int>(screenVertices[1].x),
+		static_cast<int>(screenVertices[1].y),
+		color
+	);
+	Novice::DrawLine(
+		static_cast<int>(screenVertices[1].x),
+		static_cast<int>(screenVertices[1].y),
+		static_cast<int>(screenVertices[2].x),
+		static_cast<int>(screenVertices[2].y),
+		color
+	);
+	Novice::DrawLine(
+		static_cast<int>(screenVertices[2].x),
+		static_cast<int>(screenVertices[2].y),
+		static_cast<int>(screenVertices[0].x),
+		static_cast<int>(screenVertices[0].y),
+		color
+	);
+}
+
+bool TriangleToSegmentIsCollision(const Triangle& triangle, const Segment& segment) {
+	Vector3 p = ClosestPoint(segment.origin, segment);
+
+	Vector3 cross01 = Cross(Subtract(triangle.vertices[1], triangle.vertices[0]), Subtract(p, triangle.vertices[0]));
+	Vector3 cross12 = Cross(Subtract(triangle.vertices[2], triangle.vertices[1]), Subtract(p, triangle.vertices[1]));
+	Vector3 cross20 = Cross(Subtract(triangle.vertices[0], triangle.vertices[2]), Subtract(p, triangle.vertices[2]));
+
+	if (Dot(cross01, cross12) >= 0.0f && Dot(cross12, cross20) >= 0.0f && Dot(cross20, cross01) >= 0.0f) {
+		return true;
+	}
+
+
+	return false;
+}
