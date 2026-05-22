@@ -50,9 +50,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		}
 
 		ImGui::Begin("Debug Window");
-		ImGui::DragFloat3("Camera Translate", &cameraTranslate.x, 0.1f);
-		ImGui::DragFloat3("Camera Rotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat4("Sphere2 Translate", &sphere.center.x, 0.1f);
+		ImGui::DragFloat3("Sphere.Center", &sphere.center.x, 0.1f);
+		ImGui::DragFloat("Sphere.Radius", &sphere.radius, 0.1f);
+		ImGui::DragFloat3("Plane.Normal", &plane.normal.x, 0.1f);
+		ImGui::DragFloat("Plane.Distance", &plane.distance, 0.1f);
 
 		ImGui::End();
 		Novice::EndFrame();
