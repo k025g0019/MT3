@@ -222,3 +222,24 @@ void DrawPlane(
 		color
 	);
 }
+
+
+bool SegmentIsCollsion(const Segment& segment, const Plane& plane) {
+	float distanceOrigin = Dot(segment.origin, plane.normal) - plane.distance;
+	float distanceDiff = Dot(Add(segment.origin, segment.diff), plane.normal) - plane.distance;
+	return (distanceOrigin * distanceDiff) <= 0.0f;
+}
+
+void DrawSegment(const Segment& segment, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix,
+                 uint32_t color) {
+	Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
+	Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), viewProjectionMatrix), viewportMatrix);
+
+	Novice::DrawLine(
+		static_cast<int>(start.x),
+		static_cast<int>(start.y),
+		static_cast<int>(end.x),
+		static_cast<int>(end.y),
+		color
+	);
+}

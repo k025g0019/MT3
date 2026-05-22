@@ -38,3 +38,8 @@ Vector3 Perpendicular(const Vector3& v);
 
 void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix,
                uint32_t color);
+
+void DrawSegment(const Segment& segment, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix,
+                 uint32_t color);
+
+bool SegmentIsCollsion(const Segment& segment, const Plane& plane);

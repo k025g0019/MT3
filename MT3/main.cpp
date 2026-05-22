@@ -16,11 +16,12 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
-	Sphere sphere{{0.0f, 0.0f, 0.0f}, 1.0f};
+
 	Vector3 cameraTranslate{0.0f, 1.9f, -6.49f};
 	Vector3 cameraRotate{0.26f, 0.0f, 0.0f};
-	Sphere sphere2{{1.0f, 1.0f, 0.0f}, 1.0f};
 
+
+	Segment segment{{-1.0f, 1.0f, 0.0f}, {2.0f, 0.0f, 0.0f}};
 	Plane plane{{0.0f, 1.0f, 0.0f}, 0.0f};
 	while (Novice::ProcessMessage() == 0) {
 		Novice::BeginFrame();
@@ -41,18 +42,18 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
 
-
-		if (PlaneIsCollision(sphere, plane)) {
-			DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, RED);
+		if (SegmentIsCollsion(segment, plane)) {
+			DrawSegment(segment, viewProjectionMatrix, viewportMatrix, RED);
 		}
 		else {
-			DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
+			DrawSegment(segment, viewProjectionMatrix, viewportMatrix, WHITE);
 		}
-
 		ImGui::Begin("Debug Window");
-		ImGui::DragFloat3("Camera Translate", &cameraTranslate.x, 0.1f);
-		ImGui::DragFloat3("Camera Rotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat4("Sphere2 Translate", &sphere.center.x, 0.1f);
+		ImGui::DragFloat3("Plane.Normal", &plane.normal.x, 0.1f);
+		ImGui::DragFloat("Plane.Distance", &plane.distance, 0.1f);
+		ImGui::DragFloat3("Segment.Origin", &segment.origin.x, 0.1f);
+		ImGui::DragFloat3("Segment.Diff", &segment.diff.x, 0.1f);
+
 
 		ImGui::End();
 		Novice::EndFrame();
