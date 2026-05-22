@@ -484,3 +484,20 @@ void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix
 		);
 	}
 }
+
+bool OBBToSegmentIsCollision(const OBB& obb, const Segment& segment) {
+	Matrix4x4 obbWorldMatrix = MakeOBBWorldMatrix(obb);
+	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
+	Vector3 localOrigin = Transform(segment.origin, obbWorldMatrixInverse);
+	Vector3 localDiff = Transform(Add(segment.origin, segment.diff), obbWorldMatrixInverse);
+
+	AABB localAABB{
+		.min{-obb.size.x, -obb.size.y, -obb.size.z},
+		.max{obb.size.x, obb.size.y, obb.size.z},
+	};
+	Segment localSegment{
+		.origin{localOrigin},
+		.diff{Subtract(localDiff, localOrigin)},
+	};
+	return AABBIntersectsSegment(localAABB, localSegment);
+}

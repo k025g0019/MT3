@@ -75,3 +75,5 @@ bool AABBIntersectsSegment(const AABB& aabb, const Segment& segment);
 bool OBBToSphereIsCollision(const OBB& obb, const Sphere& sphere);
 
 void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
+
+bool OBBToSegmentIsCollision(const OBB& obb, const Segment& segment);

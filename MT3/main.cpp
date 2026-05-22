@@ -31,9 +31,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		.size{0.5f, 0.5f, 0.5f},
 	};
 
-	Sphere sphere{
-		.center{0.0f, 0.0f, 0.0f},
-		.radius{0.5f},
+	Segment segment{
+		.origin{-0.8f, -0.3f, 0.0f},
+		.diff{0.5f, 0.5f, 0.0f},
 	};
 	uint32_t obbColor = WHITE;
 	OrbitCamera orbitCamera{};
@@ -57,7 +57,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		obb.size.x = (std::max)(obb.size.x, 0.01f);
 		obb.size.y = (std::max)(obb.size.y, 0.01f);
 		obb.size.z = (std::max)(obb.size.z, 0.01f);
-		sphere.radius = (std::max)(sphere.radius, 0.01f);
+
 
 		Matrix4x4 cameraMatrix = MakeAffineMatrix({1.0f, 1.0f, 1.0f}, cameraRotate, cameraTranslate);
 		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
@@ -74,7 +74,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		obb.orientations[2] = {rotateMatrix.matrix[2][0], rotateMatrix.matrix[2][1], rotateMatrix.matrix[2][2]};
 
 
-		if (OBBToSphereIsCollision(obb, sphere)) {
+		if (OBBToSegmentIsCollision(obb, segment)) {
 			obbColor = RED;
 		}
 		else {
@@ -82,7 +82,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		}
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 		DrawOBB(obb, viewProjectionMatrix, viewportMatrix, obbColor);
-		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawSegment(segment, viewProjectionMatrix, viewportMatrix, WHITE);
 
 #ifdef USE_IMGUI
 		ImGui::Begin("Debug Window");
@@ -92,8 +92,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		ImGui::DragFloat3("obb.orientations[1]", &obb.orientations[1].x, 0.1f);
 		ImGui::DragFloat3("obb.orientations[2]", &obb.orientations[2].x, 0.1f);
 		ImGui::DragFloat3("obb.size", &obb.size.x, 0.1f, 0.01f);
-		ImGui::DragFloat3("sphere.center", &sphere.center.x, 0.1f);
-		ImGui::DragFloat("sphere.radius", &sphere.radius, 0.1f, 0.01f);
+		ImGui::DragFloat3("segment.origin", &segment.origin.x, 0.1f);
+		ImGui::DragFloat3("segment.diff", &segment.diff.x, 0.1f, 0.01f);
 
 		ImGui::End();
 #endif
