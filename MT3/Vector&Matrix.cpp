@@ -31,6 +31,58 @@ namespace {
 
 		return worldMatrix;
 	}
+
+	void GetOBBVertices(const OBB& obb, Vector3 vertices[8]) {
+		Vector3 localVertices[8] = {
+			{-obb.size.x, -obb.size.y, -obb.size.z},
+			{obb.size.x, -obb.size.y, -obb.size.z},
+			{obb.size.x, obb.size.y, -obb.size.z},
+			{-obb.size.x, obb.size.y, -obb.size.z},
+			{-obb.size.x, -obb.size.y, obb.size.z},
+			{obb.size.x, -obb.size.y, obb.size.z},
+			{obb.size.x, obb.size.y, obb.size.z},
+			{-obb.size.x, obb.size.y, obb.size.z},
+		};
+
+		Matrix4x4 obbWorldMatrix = MakeOBBWorldMatrix(obb);
+		for (int32_t index = 0; index < 8; ++index) {
+			vertices[index] = Transform(localVertices[index], obbWorldMatrix);
+		}
+	}
+
+	void ProjectVerticesOnAxis(const Vector3 vertices[8], const Vector3& axis, float& min, float& max) {
+		min = Dot(vertices[0], axis);
+		max = min;
+		for (int32_t index = 1; index < 8; ++index) {
+			float projection = Dot(vertices[index], axis);
+			min = (std::min)(min, projection);
+			max = (std::max)(max, projection);
+		}
+	}
+
+	bool IsSeparatedOnAxis(const Vector3 vertices1[8], const Vector3 vertices2[8], const Vector3& axis) {
+		constexpr float kEpsilon = 1.0e-6f;
+		float axisLength = Length(axis);
+		if (axisLength < kEpsilon) {
+			return false;
+		}
+
+		Vector3 normalizedAxis = Multiply(1.0f / axisLength, axis);
+
+		float min1 = 0.0f;
+		float max1 = 0.0f;
+		float min2 = 0.0f;
+		float max2 = 0.0f;
+		ProjectVerticesOnAxis(vertices1, normalizedAxis, min1, max1);
+		ProjectVerticesOnAxis(vertices2, normalizedAxis, min2, max2);
+
+		float length1 = max1 - min1;
+		float length2 = max2 - min2;
+		float sumSpan = length1 + length2;
+		float longSpan = (std::max)(max1, max2) - (std::min)(min1, min2);
+
+		return sumSpan < longSpan;
+	}
 }
 
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
@@ -445,24 +497,13 @@ bool OBBToSphereIsCollision(const OBB& obb, const Sphere& sphere) {
 }
 
 void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-	Vector3 localVertices[8] = {
-		{-obb.size.x, -obb.size.y, -obb.size.z},
-		{obb.size.x, -obb.size.y, -obb.size.z},
-		{obb.size.x, obb.size.y, -obb.size.z},
-		{-obb.size.x, obb.size.y, -obb.size.z},
-		{-obb.size.x, -obb.size.y, obb.size.z},
-		{obb.size.x, -obb.size.y, obb.size.z},
-		{obb.size.x, obb.size.y, obb.size.z},
-		{-obb.size.x, obb.size.y, obb.size.z},
-	};
-
+	Vector3 worldVertices[8];
 	Vector3 screenVertices[8];
-	Matrix4x4 obbWorldMatrix = MakeOBBWorldMatrix(obb);
-	Matrix4x4 worldViewProjectionMatrix = Multiply(obbWorldMatrix, viewProjectionMatrix);
-	Matrix4x4 worldViewProjectionViewportMatrix = Multiply(worldViewProjectionMatrix, viewportMatrix);
+	GetOBBVertices(obb, worldVertices);
 
+	Matrix4x4 viewProjectionViewportMatrix = Multiply(viewProjectionMatrix, viewportMatrix);
 	for (int32_t index = 0; index < 8; ++index) {
-		screenVertices[index] = Transform(localVertices[index], worldViewProjectionViewportMatrix);
+		screenVertices[index] = Transform(worldVertices[index], viewProjectionViewportMatrix);
 	}
 
 	int32_t edges[12][2] = {
@@ -500,4 +541,34 @@ bool OBBToSegmentIsCollision(const OBB& obb, const Segment& segment) {
 		.diff{Subtract(localDiff, localOrigin)},
 	};
 	return AABBIntersectsSegment(localAABB, localSegment);
+}
+
+bool OBBToOBBIsCollision(const OBB& obb1, const OBB& obb2) {
+	Vector3 vertices1[8];
+	Vector3 vertices2[8];
+	GetOBBVertices(obb1, vertices1);
+	GetOBBVertices(obb2, vertices2);
+
+	Vector3 axes[15];
+	int32_t axisCount = 0;
+
+	for (int32_t index = 0; index < 3; ++index) {
+		axes[axisCount++] = obb1.orientations[index];
+	}
+	for (int32_t index = 0; index < 3; ++index) {
+		axes[axisCount++] = obb2.orientations[index];
+	}
+	for (int32_t index1 = 0; index1 < 3; ++index1) {
+		for (int32_t index2 = 0; index2 < 3; ++index2) {
+			axes[axisCount++] = Cross(obb1.orientations[index1], obb2.orientations[index2]);
+		}
+	}
+
+	for (int32_t index = 0; index < axisCount; ++index) {
+		if (IsSeparatedOnAxis(vertices1, vertices2, axes[index])) {
+			return false;
+		}
+	}
+
+	return true;
 }
