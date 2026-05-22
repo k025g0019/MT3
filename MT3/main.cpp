@@ -25,9 +25,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		.max{0.0f, 0.0f, 0.0f},
 	};
 
-	Sphere sphere1{
-		.center{0.0f, 0.0f, 0.0f},
-		.radius{0.5f},
+	Segment segment{
+		.origin{0.0f, 0.0f, 0.0f},
+		.diff{0.5f, 0.0f, 0.0f},
 	};
 
 	OrbitCamera orbitCamera{};
@@ -60,10 +60,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
 
-		DrawSphere(sphere1, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawSegment(segment, viewProjectionMatrix, viewportMatrix, WHITE);
 
-
-		if (AABBToSphereIsCollision(aabb1, sphere1)) {
+		if (AABBIntersectsSegment(aabb1, segment)) {
 			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, RED);
 		}
 		else {
@@ -73,11 +72,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		ImGui::Begin("Debug Window");
 		ImGui::DragFloat3("aabb.min", &aabb1.min.x, 0.1f);
 		ImGui::DragFloat3("aabb.max", &aabb1.max.x, 0.1f);
-		ImGui::DragFloat3("sphere.center", &sphere1.center.x, 0.1f);
-		ImGui::DragFloat("sphere.radius", &sphere1.radius, 0.1f);
+		ImGui::DragFloat3("segment.origin", &segment.origin.x, 0.1f);
+		ImGui::DragFloat3("segment.diff", &segment.diff.x, 0.1f);
+
 
 		ImGui::End();
-
 
 		Novice::EndFrame();
 

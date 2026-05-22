@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include <cmath>
 
 #include "Novice.h"
 
@@ -354,4 +355,47 @@ bool AABBToSphereIsCollision(const AABB& aabb, const Sphere& sphere) {
 
 	float distance = Length(Subtract(closestPoint, sphere.center));
 	return distance <= sphere.radius;
+}
+
+bool AABBIntersectsSegment(const AABB& aabb, const Segment& segment) {
+	Vector3 start = segment.origin;
+	Vector3 end = Add(segment.origin, segment.diff);
+
+	float tMin = 0.0f;
+	float tMax = 1.0f;
+
+	Vector3 dir = segment.diff;
+
+	constexpr float epsilon = 0.00001f;
+
+	float min[3] = {aabb.min.x, aabb.min.y, aabb.min.z};
+	float max[3] = {aabb.max.x, aabb.max.y, aabb.max.z};
+	float p[3] = {start.x, start.y, start.z};
+	float d[3] = {dir.x, dir.y, dir.z};
+
+	for (int i = 0; i < 3; i++) {
+		if (std::fabs(d[i]) < epsilon) {
+			if (p[i] < min[i] || p[i] > max[i]) {
+				return false;
+			}
+		}
+		else {
+			float t1 = (min[i] - p[i]) / d[i];
+			float t2 = (max[i] - p[i]) / d[i];
+
+			if (t1 > t2) {
+				std::swap(t1, t2);
+			}
+
+			tMin = (std::max)(tMin, t1);
+			tMax = (std::min)(tMax, t2);
+
+
+			if (tMin > tMax) {
+				return false;
+			}
+		}
+	}
+
+	return true;
 }
