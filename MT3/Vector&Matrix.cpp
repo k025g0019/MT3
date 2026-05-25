@@ -165,7 +165,7 @@ void DrawPlane(
 	Vector3 center = Multiply(plane.distance, plane.normal);
 
 	Vector3 perpendicular[4];
-	perpendicular[0] = Perpendicular(plane.normal);
+	perpendicular[0] = Normalize(Perpendicular(plane.normal));
 	perpendicular[1] = {
 		-perpendicular[0].x,
 		-perpendicular[0].y,
@@ -274,16 +274,45 @@ void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatri
 }
 
 bool TriangleToSegmentIsCollision(const Triangle& triangle, const Segment& segment) {
-	Vector3 p = ClosestPoint(segment.origin, segment);
+	Vector3 v0 = triangle.vertices[0];
+	Vector3 v1 = triangle.vertices[1];
+	Vector3 v2 = triangle.vertices[2];
 
-	Vector3 cross01 = Cross(Subtract(triangle.vertices[1], triangle.vertices[0]), Subtract(p, triangle.vertices[0]));
-	Vector3 cross12 = Cross(Subtract(triangle.vertices[2], triangle.vertices[1]), Subtract(p, triangle.vertices[1]));
-	Vector3 cross20 = Cross(Subtract(triangle.vertices[0], triangle.vertices[2]), Subtract(p, triangle.vertices[2]));
+	Vector3 edge01 = Subtract(v1, v0);
+	Vector3 edge02 = Subtract(v2, v0);
 
-	if (Dot(cross01, cross12) >= 0.0f && Dot(cross12, cross20) >= 0.0f && Dot(cross20, cross01) >= 0.0f) {
-		return true;
+	Vector3 normal = Normalize(Cross(edge01, edge02));
+
+	Vector3 segStart = segment.origin;
+	Vector3 segEnd = Add(segment.origin, segment.diff);
+	Vector3 segDir = segment.diff;
+
+	float denom = Dot(normal, segDir);
+
+	// ü•ª‚Æ•½–Ê‚ª•½s
+	if (fabsf(denom) < 0.00001f) {
+		return false;
 	}
 
+	// p = o + t b
+	float t = Dot(normal, Subtract(v0, segStart)) / denom;
+
+	// ü•ª”ÍˆÍŠO
+	if (t < 0.0f || t > 1.0f) {
+		return false;
+	}
+
+	Vector3 p = Add(segStart, Multiply(t, segDir));
+
+	Vector3 cross01 = Cross(Subtract(v1, v0), Subtract(p, v0));
+	Vector3 cross12 = Cross(Subtract(v2, v1), Subtract(p, v1));
+	Vector3 cross20 = Cross(Subtract(v0, v2), Subtract(p, v2));
+
+	if (Dot(cross01, normal) >= 0.0f &&
+		Dot(cross12, normal) >= 0.0f &&
+		Dot(cross20, normal) >= 0.0f) {
+		return true;
+	}
 
 	return false;
 }
