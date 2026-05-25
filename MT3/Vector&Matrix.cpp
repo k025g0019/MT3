@@ -165,7 +165,7 @@ void DrawPlane(
 	Vector3 center = Multiply(plane.distance, plane.normal);
 
 	Vector3 perpendicular[4];
-	perpendicular[0] = Perpendicular(plane.normal);
+	perpendicular[0] = Normalize(Perpendicular(plane.normal));
 	perpendicular[1] = {
 		-perpendicular[0].x,
 		-perpendicular[0].y,
