@@ -95,7 +95,11 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy C:\KamataEngine\DirectXGame\Resources .\NoviceResources /S /E /I /D /R /Y
-xcopy C:\KamataEngine\DirectXGame\Resources "$(OutDirFullPath)NoviceResources" /S /E /I /D /R /Y</Command>
+xcopy C:\KamataEngine\DirectXGame\Resources "$(OutDirFullPath)NoviceResources" /S /E /I /D /R /Y
+xcopy C:\KamataEngine\Novice\shaders .\NoviceResources\shaders /S /E /I /D /R /Y
+xcopy C:\KamataEngine\Novice\shaders "$(OutDirFullPath)NoviceResources\shaders" /S /E /I /D /R /Y
+copy /Y "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\dxcompiler.dll" "$(OutDirFullPath)"
+copy /Y "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\dxil.dll" "$(OutDirFullPath)"</Command>
     </PostBuildEvent>
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
@@ -127,7 +131,11 @@ xcopy C:\KamataEngine\DirectXGame\Resources "$(OutDirFullPath)NoviceResources" /
     </Link>
     <PostBuildEvent>
       <Command>xcopy C:\KamataEngine\DirectXGame\Resources .\NoviceResources /S /E /I /D /R /Y
-xcopy C:\KamataEngine\DirectXGame\Resources "$(OutDirFullPath)NoviceResources" /S /E /I /D /R /Y</Command>
+xcopy C:\KamataEngine\DirectXGame\Resources "$(OutDirFullPath)NoviceResources" /S /E /I /D /R /Y
+xcopy C:\KamataEngine\Novice\shaders .\NoviceResources\shaders /S /E /I /D /R /Y
+xcopy C:\KamataEngine\Novice\shaders "$(OutDirFullPath)NoviceResources\shaders" /S /E /I /D /R /Y
+copy /Y "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\dxcompiler.dll" "$(OutDirFullPath)"
+copy /Y "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\dxil.dll" "$(OutDirFullPath)"</Command>
     </PostBuildEvent>
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
@@ -161,7 +169,11 @@ xcopy C:\KamataEngine\DirectXGame\Resources "$(OutDirFullPath)NoviceResources" /
     </Link>
     <PostBuildEvent>
       <Command>xcopy C:\KamataEngine\DirectXGame\Resources .\NoviceResources /S /E /I /D /R /Y
-xcopy C:\KamataEngine\DirectXGame\Resources "$(OutDirFullPath)NoviceResources" /S /E /I /D /R /Y</Command>
+xcopy C:\KamataEngine\DirectXGame\Resources "$(OutDirFullPath)NoviceResources" /S /E /I /D /R /Y
+xcopy C:\KamataEngine\Novice\shaders .\NoviceResources\shaders /S /E /I /D /R /Y
+xcopy C:\KamataEngine\Novice\shaders "$(OutDirFullPath)NoviceResources\shaders" /S /E /I /D /R /Y
+copy /Y "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\dxcompiler.dll" "$(OutDirFullPath)"
+copy /Y "C:\Program Files (x86)\Windows Kits\10\Redist\D3D\x64\dxil.dll" "$(OutDirFullPath)"</Command>
     </PostBuildEvent>
     <Manifest>
       <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
