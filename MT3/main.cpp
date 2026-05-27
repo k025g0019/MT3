@@ -50,12 +50,16 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		}
 		ImGui::Begin("Debug Window");
 		ImGui::DragFloat3("Plane.Normal", &plane.normal.x, 0.1f);
+		plane.normal = Normalize(plane.normal);
 		ImGui::DragFloat("Plane.D", &plane.distance, 0.1f);
 		ImGui::DragFloat3("Segment.Origin", &segment.origin.x, 0.1f);
 		ImGui::DragFloat3("Segment.Diff", &segment.diff.x, 0.1f);
 
 
 		ImGui::End();
+
+		
+
 		Novice::EndFrame();
 
 		if (preKeys[DIK_ESCAPE] == 0 && keys[DIK_ESCAPE] != 0) {
