@@ -1,6 +1,8 @@
 #pragma once
 #include <cmath>
 
+#include "Vector.h"
+
 struct Matrix4x4 {
 	float matrix[4][4];
 };
@@ -33,3 +35,6 @@ Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspect, float nearZ, float 
 Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip);
 
 Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);
+Matrix4x4 operator+(const Matrix4x4& matrix1, const Matrix4x4& matrix2);
+Matrix4x4 operator-(const Matrix4x4& matrix1, const Matrix4x4& matrix2);
+Matrix4x4 operator*(const Matrix4x4& matrix1, const Matrix4x4& matrix2);
