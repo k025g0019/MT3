@@ -23,18 +23,18 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	OrbitCamera orbitCamera{};
 	InitializeOrbitCamera(orbitCamera, {0.0f, 0.0f, 0.0f}, {0.0f, 1.9f, -6.49f});
 
-	Vector3 a{0.2f, 1.0f, 0.0f};
-	Vector3 b{2.4f, 3.1f, 1.2f};
+	Vector3 a{ 0.2f,1.0f,0.0f };
+	Vector3 b{ 2.4f,3.1f,1.2f };
 
 	Vector3 c = a + b;
 	Vector3 d = a - b;
 	Vector3 e = a * 2.4f;
-	Vector3 rotate{0.4f, 1.43f, -0.8f};
+	Vector3 rotate{ 0.4f,1.43f,-0.8f };
 	Matrix4x4 rotatexMatrix = MakeRotateXMatrix(rotate.x);
 	Matrix4x4 rotateyMatrix = MakeRotateYMatrix(rotate.y);
 	Matrix4x4 rotatezMatrix = MakeRotateZMatrix(rotate.z);
 
-	Matrix4x4 rotateMatrix = rotatexMatrix * rotateyMatrix * rotatezMatrix;
+	Matrix4x4 rotateMatrix =rotatexMatrix*rotateyMatrix*rotatezMatrix;
 	while (Novice::ProcessMessage() == 0) {
 		Novice::BeginFrame();
 
@@ -67,7 +67,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// ここにコードを追加していく
 		//=====================================================
 
-
+	
 #ifdef USE_IMGUI
 		ImGui::Begin("Debug Window");
 
@@ -89,14 +89,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		ImGui::Text("e : %.3f, %.3f, %.3f", e.x, e.y, e.z);
 
 		ImGui::Text("rotateMatrix");
-		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[0][0], rotateMatrix.matrix[0][1],
-		            rotateMatrix.matrix[0][2], rotateMatrix.matrix[0][3]);
-		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[1][0], rotateMatrix.matrix[1][1],
-		            rotateMatrix.matrix[1][2], rotateMatrix.matrix[1][3]);
-		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[2][0], rotateMatrix.matrix[2][1],
-		            rotateMatrix.matrix[2][2], rotateMatrix.matrix[2][3]);
-		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[3][0], rotateMatrix.matrix[3][1],
-		            rotateMatrix.matrix[3][2], rotateMatrix.matrix[3][3]);
+		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[0][0], rotateMatrix.matrix[0][1], rotateMatrix.matrix[0][2], rotateMatrix.matrix[0][3]);
+		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[1][0], rotateMatrix.matrix[1][1], rotateMatrix.matrix[1][2], rotateMatrix.matrix[1][3]);
+		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[2][0], rotateMatrix.matrix[2][1], rotateMatrix.matrix[2][2], rotateMatrix.matrix[2][3]);
+		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[3][0], rotateMatrix.matrix[3][1], rotateMatrix.matrix[3][2], rotateMatrix.matrix[3][3]);
 
 		ImGui::End();
 #endif

@@ -233,7 +233,6 @@ Matrix4x4 MakeViewportMatrix(
 
 	return result;
 }
-
 Matrix4x4 operator+(const Matrix4x4& matrix1, const Matrix4x4& matrix2) {
 	return Add(matrix1, matrix2);
 }
