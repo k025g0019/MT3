@@ -51,9 +51,27 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 
 #ifdef USE_IMGUI
+
+			controlPoints[0],
+
+
+		
+			viewProjectionMatrix,
+			viewportMatrix,
+			WHITE
+		);
+			controlPoints[0],
+		ImGui::DragFloat3("Control Point 0", &controlPoints[0].x, 0.01f);
+		ImGui::DragFloat3("Control Point 1", &controlPoints[1].x, 0.01f);
+		ImGui::DragFloat3("Control Point 2", &controlPoints[2].x, 0.01f);
+			viewProjectionMatrix,
+			viewportMatrix,
+			WHITE
+		);
 		ImGui::Begin("Debug Window");
-
-
+		ImGui::DragFloat3("Control Point 0", &controlPoints[0].x, 0.01f);
+		ImGui::DragFloat3("Control Point 1", &controlPoints[1].x, 0.01f);
+		ImGui::DragFloat3("Control Point 2", &controlPoints[2].x, 0.01f);
 		ImGui::End();
 #endif
 
