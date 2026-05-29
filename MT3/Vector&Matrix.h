@@ -32,6 +32,16 @@ struct OBB {
 	Vector3 size;
 };
 
+
+//物理
+struct Pendulum {
+	Vector3 anchor;
+	float length;
+	float angle;
+	float angularVelocity;
+	float angularAcceleration;
+};
+
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 Matrix4x4 MakeTranslationMatrix(const Vector3& translation);
 Matrix4x4 MakeScaleMatrix(const Vector3& scale);
