@@ -47,18 +47,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
 
-		DrawBezier(
-			controlPoints[0],
-			controlPoints[1],
-			controlPoints[2],
-			viewProjectionMatrix,
-			viewportMatrix,
-			WHITE
-		);
+
 		ImGui::Begin("Debug Window");
-		ImGui::DragFloat3("Control Point 0", &controlPoints[0].x, 0.01f);
-		ImGui::DragFloat3("Control Point 1", &controlPoints[1].x, 0.01f);
-		ImGui::DragFloat3("Control Point 2", &controlPoints[2].x, 0.01f);
+		
 		ImGui::End();
 
 
