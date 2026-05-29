@@ -76,3 +76,4 @@ bool OBBToSphereIsCollision(const OBB& obb, const Sphere& sphere);
 
 void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix);
+Ball Springsmire(const Ball& ball, const Spring& spring, float deltaTime);

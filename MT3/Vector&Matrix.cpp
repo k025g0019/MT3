@@ -1,4 +1,4 @@
-#include "Vector&Matrix.h"
+﻿#include "Vector&Matrix.h"
 
 #include <algorithm>
 
@@ -521,4 +521,30 @@ void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMa
 			static_cast<int>(screenStart.x), static_cast<int>(screenStart.y), static_cast<int>(screenEnd.x),
 			static_cast<int>(screenEnd.y), color);
 	}
+}
+
+
+//========================================================
+// 物理ゾーン
+//===============-	===================================================
+
+Ball Springsmire(const Ball& ball, const Spring& spring, float deltaTime) {
+	Ball resultBall = ball;
+	Vector3 diff = ball.position - spring.anchor;
+	float length = Length(diff);
+	if (length != 0.0f) {
+		Vector3 direction = Normalize(diff);
+		Vector3 restPosition = spring.anchor + direction * spring.naturalLength;
+		Vector3 displacement = length * (ball.position - restPosition);
+		Vector3 restoringForce = -spring.stiffness * displacement;
+		Vector3 force = restoringForce;
+		resultBall.acceleration = force * (1.0f / ball.mass);
+		//減衰抵抗を計算する
+		Vector3 dampingForce = -spring.dampingCoefficient * ball.velocity;
+		resultBall.acceleration += dampingForce * (1.0f / ball.mass);
+	}
+
+	resultBall.velocity += resultBall.acceleration * deltaTime;
+	resultBall.position += resultBall.velocity * deltaTime;
+	return resultBall;
 }
