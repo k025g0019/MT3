@@ -8,7 +8,7 @@
 
 #include "OrbitCamera.h"
 #include "Vector&Matrix.h"
-
+#include "bezier.h"
 constexpr char kWindowTitle[] = "LE1B_26";
 constexpr int kWindowWidth = 1280;
 constexpr int kWindowHeight = 720;
