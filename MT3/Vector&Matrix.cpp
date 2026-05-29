@@ -2,7 +2,36 @@
 
 #include <algorithm>
 
+#include <cmath>
+
 #include "Novice.h"
+
+namespace {
+	Matrix4x4 MakeOBBWorldMatrix(const OBB& obb) {
+		Matrix4x4 worldMatrix{};
+		worldMatrix.matrix[0][0] = obb.orientations[0].x;
+		worldMatrix.matrix[0][1] = obb.orientations[0].y;
+		worldMatrix.matrix[0][2] = obb.orientations[0].z;
+		worldMatrix.matrix[0][3] = 0.0f;
+
+		worldMatrix.matrix[1][0] = obb.orientations[1].x;
+		worldMatrix.matrix[1][1] = obb.orientations[1].y;
+		worldMatrix.matrix[1][2] = obb.orientations[1].z;
+		worldMatrix.matrix[1][3] = 0.0f;
+
+		worldMatrix.matrix[2][0] = obb.orientations[2].x;
+		worldMatrix.matrix[2][1] = obb.orientations[2].y;
+		worldMatrix.matrix[2][2] = obb.orientations[2].z;
+		worldMatrix.matrix[2][3] = 0.0f;
+
+		worldMatrix.matrix[3][0] = obb.center.x;
+		worldMatrix.matrix[3][1] = obb.center.y;
+		worldMatrix.matrix[3][2] = obb.center.z;
+		worldMatrix.matrix[3][3] = 1.0f;
+
+		return worldMatrix;
+	}
+}
 
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
 	Vector3 result;
@@ -286,4 +315,172 @@ bool TriangleToSegmentIsCollision(const Triangle& triangle, const Segment& segme
 
 
 	return false;
+}
+
+
+void DrawAABB(
+	const AABB& aabb,
+	const Matrix4x4& viewProjectionMatrix,
+	const Matrix4x4& viewportMatrix,
+	uint32_t color
+) {
+	Vector3 vertices[8] = {
+		{aabb.min.x, aabb.min.y, aabb.min.z}, // 0
+		{aabb.max.x, aabb.min.y, aabb.min.z}, // 1
+		{aabb.max.x, aabb.max.y, aabb.min.z}, // 2
+		{aabb.min.x, aabb.max.y, aabb.min.z}, // 3
+
+		{aabb.min.x, aabb.min.y, aabb.max.z}, // 4
+		{aabb.max.x, aabb.min.y, aabb.max.z}, // 5
+		{aabb.max.x, aabb.max.y, aabb.max.z}, // 6
+		{aabb.min.x, aabb.max.y, aabb.max.z}, // 7
+	};
+
+	Vector3 screenVertices[8];
+
+	Matrix4x4 matrix = Multiply(viewProjectionMatrix, viewportMatrix);
+
+	for (int i = 0; i < 8; i++) {
+		screenVertices[i] = Transform(vertices[i], matrix);
+	}
+
+	int32_t edges[12][2] = {
+		{0, 1}, {1, 2}, {2, 3}, {3, 0},
+		{4, 5}, {5, 6}, {6, 7}, {7, 4},
+		{0, 4}, {1, 5}, {2, 6}, {3, 7},
+	};
+
+	for (int i = 0; i < 12; i++) {
+		const Vector3& start = screenVertices[edges[i][0]];
+		const Vector3& end = screenVertices[edges[i][1]];
+
+		Novice::DrawLine(
+			static_cast<int>(start.x),
+			static_cast<int>(start.y),
+			static_cast<int>(end.x),
+			static_cast<int>(end.y),
+			color
+		);
+	}
+}
+
+
+bool AABBToAABBIsCollision(const AABB& aabb1, const AABB& aabb2) {
+	if ((aabb1.min.x <= aabb2.max.x && aabb1.max.x >= aabb2.min.x) &&
+		(aabb1.min.y <= aabb2.max.y && aabb1.max.y >= aabb2.min.y) &&
+		(aabb1.min.z <= aabb2.max.z && aabb1.max.z >= aabb2.min.z)) {
+		return true;
+	}
+	return false;
+}
+
+
+bool AABBToSphereIsCollision(const AABB& aabb, const Sphere& sphere) {
+	Vector3 closestPoint(std::clamp(sphere.center.x, aabb.min.x, aabb.max.x),
+	                     std::clamp(sphere.center.y, aabb.min.y, aabb.max.y),
+	                     std::clamp(sphere.center.z, aabb.min.z, aabb.max.z));
+
+	float distance = Length(Subtract(closestPoint, sphere.center));
+	return distance <= sphere.radius;
+}
+
+bool AABBIntersectsSegment(const AABB& aabb, const Segment& segment) {
+	Vector3 start = segment.origin;
+	Vector3 end = Add(segment.origin, segment.diff);
+
+	float tMin = 0.0f;
+	float tMax = 1.0f;
+
+	Vector3 dir = segment.diff;
+
+	constexpr float epsilon = 0.00001f;
+
+	float min[3] = {aabb.min.x, aabb.min.y, aabb.min.z};
+	float max[3] = {aabb.max.x, aabb.max.y, aabb.max.z};
+	float p[3] = {start.x, start.y, start.z};
+	float d[3] = {dir.x, dir.y, dir.z};
+
+	for (int i = 0; i < 3; i++) {
+		if (std::fabs(d[i]) < epsilon) {
+			if (p[i] < min[i] || p[i] > max[i]) {
+				return false;
+			}
+		}
+		else {
+			float t1 = (min[i] - p[i]) / d[i];
+			float t2 = (max[i] - p[i]) / d[i];
+
+			if (t1 > t2) {
+				std::swap(t1, t2);
+			}
+
+			tMin = (std::max)(tMin, t1);
+			tMax = (std::min)(tMax, t2);
+
+
+			if (tMin > tMax) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool OBBToSphereIsCollision(const OBB& obb, const Sphere& sphere) {
+	Matrix4x4 obbWorldMatrix = MakeOBBWorldMatrix(obb);
+	Matrix4x4 obbWorldMatrixInverse = Inverse(obbWorldMatrix);
+
+	Vector3 centerInOBBLocalSpace = Transform(sphere.center, obbWorldMatrixInverse);
+	AABB aabbOBBLocal{
+		.min{-obb.size.x, -obb.size.y, -obb.size.z},
+		.max{obb.size.x, obb.size.y, obb.size.z},
+	};
+	Sphere sphereOBBLocal{
+		.center{centerInOBBLocalSpace},
+		.radius{sphere.radius},
+	};
+
+	return AABBToSphereIsCollision(aabbOBBLocal, sphereOBBLocal);
+}
+
+void DrawOBB(const OBB& obb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+	Vector3 localVertices[8] = {
+		{-obb.size.x, -obb.size.y, -obb.size.z},
+		{obb.size.x, -obb.size.y, -obb.size.z},
+		{obb.size.x, obb.size.y, -obb.size.z},
+		{-obb.size.x, obb.size.y, -obb.size.z},
+		{-obb.size.x, -obb.size.y, obb.size.z},
+		{obb.size.x, -obb.size.y, obb.size.z},
+		{obb.size.x, obb.size.y, obb.size.z},
+		{-obb.size.x, obb.size.y, obb.size.z},
+	};
+
+	Vector3 screenVertices[8];
+	Matrix4x4 obbWorldMatrix = MakeOBBWorldMatrix(obb);
+	Matrix4x4 worldViewProjectionMatrix = Multiply(obbWorldMatrix, viewProjectionMatrix);
+	Matrix4x4 worldViewProjectionViewportMatrix = Multiply(worldViewProjectionMatrix, viewportMatrix);
+
+	for (int32_t index = 0; index < 8; ++index) {
+		screenVertices[index] = Transform(localVertices[index], worldViewProjectionViewportMatrix);
+	}
+
+	int32_t edges[12][2] = {
+		{0, 1}, {1, 2}, {2, 3}, {3, 0},
+		{4, 5}, {5, 6}, {6, 7}, {7, 4},
+		{0, 4}, {1, 5}, {2, 6}, {3, 7},
+	};
+
+	for (int32_t index = 0; index < 12; ++index) {
+		const Vector3& start = screenVertices[edges[index][0]];
+		const Vector3& end = screenVertices[edges[index][1]];
+
+		Novice::DrawLine(
+			static_cast<int>(start.x),
+			static_cast<int>(start.y),
+			static_cast<int>(end.x),
+			static_cast<int>(end.y),
+			color
+		);
+	}
 }

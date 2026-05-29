@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="KamataEngine">
@@ -26,6 +26,9 @@
       <Filter>KamataEngine\Source</Filter>
     </ClCompile>
     <ClCompile Include="Matrix.cpp">
+      <Filter>KamataEngine\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="OrbitCamera.cpp">
       <Filter>KamataEngine\Source</Filter>
     </ClCompile>
     <ClCompile Include="Vector.cpp">
@@ -129,6 +132,8 @@
     <ClInclude Include="Vector&amp;Matrix.h">
       <Filter>KamataEngine\hedar</Filter>
     </ClInclude>
-    <ClInclude Include="bezier.h" />
+    <ClInclude Include="OrbitCamera.h">
+      <Filter>KamataEngine\hedar</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
