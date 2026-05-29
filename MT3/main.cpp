@@ -23,18 +23,30 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	OrbitCamera orbitCamera{};
 	InitializeOrbitCamera(orbitCamera, {0.0f, 0.0f, 0.0f}, {0.0f, 1.9f, -6.49f});
 
-	Vector3 a{0.2f, 1.0f, 0.0f};
-	Vector3 b{2.4f, 3.1f, 1.2f};
+	Vector3 translates[3] = {
+		{0.2f, 1.0f, 0.0f},
+		{0.4f, 0.0f, 0.0f},
+		{0.3f, 0.0f, 0.0f}
+	};
 
-	Vector3 c = a + b;
-	Vector3 d = a - b;
-	Vector3 e = a * 2.4f;
-	Vector3 rotate{0.4f, 1.43f, -0.8f};
-	Matrix4x4 rotatexMatrix = MakeRotateXMatrix(rotate.x);
-	Matrix4x4 rotateyMatrix = MakeRotateYMatrix(rotate.y);
-	Matrix4x4 rotatezMatrix = MakeRotateZMatrix(rotate.z);
+	Vector3 rotates[3] = {
+		{0.0f, 0.0f, -6.08f},
+		{0.0f, 0.0f, -1.4f},
+		{0.0f, 0.0f, 0.0f}
+	};
 
-	Matrix4x4 rotateMatrix = rotatexMatrix * rotateyMatrix * rotatezMatrix;
+	Vector3 scales[3] = {
+		{1.0f, 1.0f, 1.0f},
+		{1.0f, 1.0f, 1.0f},
+		{1.0f, 1.0f, 1.0f}
+	};
+	Matrix4x4 worldMatrices[3];
+
+	Sphere spheres[3];
+
+	for (int i = 0; i < 3; i++) {
+		spheres[i].radius = 0.2f;
+	}
 	while (Novice::ProcessMessage() == 0) {
 		Novice::BeginFrame();
 
@@ -66,40 +78,137 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		//========================================================
 		// ここにコードを追加していく
 		//=====================================================
+		worldMatrices[0] =
+			MakeAffineMatrix(
+				scales[0],
+				rotates[0],
+				translates[0]
+			);
 
+		worldMatrices[1] =
+			Multiply(
+				MakeAffineMatrix(
+					scales[1],
+					rotates[1],
+					translates[1]
+				),
+				worldMatrices[0]
+			);
 
-#ifdef USE_IMGUI
+		worldMatrices[2] =
+			Multiply(
+				MakeAffineMatrix(
+					scales[2],
+					rotates[2],
+					translates[2]
+				),
+				worldMatrices[1]
+			);
+		spheres[0].center =
+			Transform(
+				{0.0f, 0.0f, 0.0f},
+				worldMatrices[0]
+			);
+
+		spheres[1].center =
+			Transform(
+				{0.0f, 0.0f, 0.0f},
+				worldMatrices[1]
+			);
+
+		spheres[2].center =
+			Transform(
+				{0.0f, 0.0f, 0.0f},
+				worldMatrices[2]
+			);
+		Segment segment0;
+		segment0.origin = spheres[0].center;
+		segment0.diff =
+			Subtract(
+				spheres[1].center,
+				spheres[0].center
+			);
+
+		Segment segment1;
+		segment1.origin = spheres[1].center;
+		segment1.diff =
+			Subtract(
+				spheres[2].center,
+				spheres[1].center
+			);
+		DrawSegment(
+			segment0,
+			viewProjectionMatrix,
+			viewportMatrix,
+			WHITE
+		);
+
+		DrawSegment(
+			segment1,
+			viewProjectionMatrix,
+			viewportMatrix,
+			WHITE
+		);
+
+		DrawSphere(
+			spheres[0],
+			viewProjectionMatrix,
+			viewportMatrix,
+			RED
+		);
+
+		DrawSphere(
+			spheres[1],
+			viewProjectionMatrix,
+			viewportMatrix,
+			GREEN
+		);
+
+		DrawSphere(
+			spheres[2],
+			viewProjectionMatrix,
+			viewportMatrix,
+			BLUE
+		);
 		ImGui::Begin("Debug Window");
 
-		ImGui::DragFloat3("a", &a.x, 0.01f);
-		ImGui::DragFloat3("b", &b.x, 0.01f);
-		ImGui::DragFloat3("rotate", &rotate.x, 0.01f);
+		ImGui::DragFloat3(
+			"translate[0]",
+			&translates[0].x,
+			0.01f
+		);
 
-		c = a + b;
-		d = a - b;
-		e = a * 2.4f;
+		ImGui::DragFloat3(
+			"translate[1]",
+			&translates[1].x,
+			0.01f
+		);
 
-		rotatexMatrix = MakeRotateXMatrix(rotate.x);
-		rotateyMatrix = MakeRotateYMatrix(rotate.y);
-		rotatezMatrix = MakeRotateZMatrix(rotate.z);
-		rotateMatrix = rotatexMatrix * rotateyMatrix * rotatezMatrix;
+		ImGui::DragFloat3(
+			"translate[2]",
+			&translates[2].x,
+			0.01f
+		);
 
-		ImGui::Text("c : %.3f, %.3f, %.3f", c.x, c.y, c.z);
-		ImGui::Text("d : %.3f, %.3f, %.3f", d.x, d.y, d.z);
-		ImGui::Text("e : %.3f, %.3f, %.3f", e.x, e.y, e.z);
+		ImGui::DragFloat3(
+			"rotate[0]",
+			&rotates[0].x,
+			0.01f
+		);
 
-		ImGui::Text("rotateMatrix");
-		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[0][0], rotateMatrix.matrix[0][1],
-		            rotateMatrix.matrix[0][2], rotateMatrix.matrix[0][3]);
-		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[1][0], rotateMatrix.matrix[1][1],
-		            rotateMatrix.matrix[1][2], rotateMatrix.matrix[1][3]);
-		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[2][0], rotateMatrix.matrix[2][1],
-		            rotateMatrix.matrix[2][2], rotateMatrix.matrix[2][3]);
-		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[3][0], rotateMatrix.matrix[3][1],
-		            rotateMatrix.matrix[3][2], rotateMatrix.matrix[3][3]);
+		ImGui::DragFloat3(
+			"rotate[1]",
+			&rotates[1].x,
+			0.01f
+		);
+
+		ImGui::DragFloat3(
+			"rotate[2]",
+			&rotates[2].x,
+			0.01f
+		);
 
 		ImGui::End();
-#endif
 
 		Novice::EndFrame();
 
