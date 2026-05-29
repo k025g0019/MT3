@@ -3,44 +3,12 @@
 #include <Novice.h>
 #include <cmath>
 
-#include "Vector&Matrix.h"
+#include "Matrix.h"
 
 #include "Novice.h"
-#include "Vector.h"
+
 #include  "math.h"
-void VectorScreenPrintf(int x, int y, Vector3 result, const char* label) {
-	Novice::ScreenPrintf(x, y, "%0.02f", result.x);
-	Novice::ScreenPrintf(x + 50, y, " %0.02f", result.y);
-	Novice::ScreenPrintf(x + 100, y, "%0.02f %s", result.z, label);
-}
 
-//加算
-Vector3 Add(const Vector3& v1, const Vector3& v2) {
-	Vector3 result;
-	result.x = v1.x + v2.x;
-	result.y = v1.y + v2.y;
-	result.z = v1.z + v2.z;
-	return result;
-
-}
-
-//減算
-Vector3 Subtract(const Vector3& v1, const Vector3& v2) {
-	Vector3 result;
-	result.x = v1.x - v2.x;
-	result.y = v1.y - v2.y;
-	result.z = v1.z - v2.z;
-	return result;
-}
-
-//スカラー倍
-Vector3 Multiply(float scalar, const Vector3& v) {
-	Vector3 result;
-	result.x = scalar * v.x;
-	result.y = scalar * v.y;
-	result.z = scalar * v.z;
-	return result;
-}
 
 void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label) {
 	Novice::ScreenPrintf(x, y, "%s", label);
@@ -217,7 +185,7 @@ Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspect, float nearZ, float 
 	result.matrix[2][3] = 1.0f;
 	result.matrix[3][2] = (-nearZ * farZ) / (farZ - nearZ);
 	return result;
-		}
+}
 
 //正射影行列
 // 正射影行列
@@ -240,7 +208,7 @@ Matrix4x4 MakeOrthographicMatrix(
 	result.matrix[3][3] = 1.0f;
 
 	return result;
-	}
+}
 
 // ビューポート行列
 // ビューポート行列
@@ -265,39 +233,14 @@ Matrix4x4 MakeViewportMatrix(
 
 	return result;
 }
+Matrix4x4 operator+(const Matrix4x4& matrix1, const Matrix4x4& matrix2) {
+	return Add(matrix1, matrix2);
+}
 
-void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix) {
-	constexpr float kGridHalfWidth = 2.0f;
-	constexpr uint32_t kSubdivision = 10;
-	constexpr float kGridEvery = (kGridHalfWidth * 2.0f) / static_cast<float>(kSubdivision);
+Matrix4x4 operator-(const Matrix4x4& matrix1, const Matrix4x4& matrix2) {
+	return Subtract(matrix1, matrix2);
+}
 
-	for (uint32_t xIndex = 0; xIndex <= kSubdivision; ++xIndex) {
-		float x = -kGridHalfWidth + xIndex * kGridEvery;
-		Vector3 start{x, 0.0f, -kGridHalfWidth};
-		Vector3 end{x, 0.0f, kGridHalfWidth};
-
-		Vector3 ndcStart = Transform(start, viewProjectionMatrix);
-		Vector3 ndcEnd = Transform(end, viewProjectionMatrix);
-		Vector3 screenStart = Transform(ndcStart, viewportMatrix);
-		Vector3 screenEnd = Transform(ndcEnd, viewportMatrix);
-
-		uint32_t color = (std::fabs(x) < 0.0001f) ? 0xFFFFFFFF : 0xAAAAAAFF;
-		Novice::DrawLine(
-			int(screenStart.x), int(screenStart.y), int(screenEnd.x), int(screenEnd.y), color);
-	}
-
-	for (uint32_t zIndex = 0; zIndex <= kSubdivision; ++zIndex) {
-		float z = -kGridHalfWidth + zIndex * kGridEvery;
-		Vector3 start{-kGridHalfWidth, 0.0f, z};
-		Vector3 end{kGridHalfWidth, 0.0f, z};
-
-		Vector3 ndcStart = Transform(start, viewProjectionMatrix);
-		Vector3 ndcEnd = Transform(end, viewProjectionMatrix);
-		Vector3 screenStart = Transform(ndcStart, viewportMatrix);
-		Vector3 screenEnd = Transform(ndcEnd, viewportMatrix);
-
-		uint32_t color = (std::fabs(z) < 0.0001f) ? 0xFFFFFFFF : 0xAAAAAAFF;
-		Novice::DrawLine(
-			int(screenStart.x), int(screenStart.y), int(screenEnd.x), int(screenEnd.y), color);
-	}
+Matrix4x4 operator*(const Matrix4x4& matrix1, const Matrix4x4& matrix2) {
+	return Multiply(matrix1, matrix2);
 }
