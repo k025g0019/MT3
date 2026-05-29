@@ -34,6 +34,9 @@
     <ClCompile Include="main.cpp">
       <Filter>KamataEngine\Source</Filter>
     </ClCompile>
+    <ClCompile Include="bezier.cpp">
+      <Filter>KamataEngine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\KamataEngine\DirectXGame\audio\Audio.h">
@@ -126,5 +129,6 @@
     <ClInclude Include="Vector&amp;Matrix.h">
       <Filter>KamataEngine\hedar</Filter>
     </ClInclude>
+    <ClInclude Include="bezier.h" />
   </ItemGroup>
 </Project>

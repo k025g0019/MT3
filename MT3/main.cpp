@@ -5,7 +5,7 @@
 #endif
 
 #include "Vector&Matrix.h"
-
+#include "bezier.h"
 constexpr char kWindowTitle[] = "LE1B_26";
 constexpr int kWindowWidth = 1280;
 constexpr int kWindowHeight = 720;
@@ -21,8 +21,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Vector3 cameraRotate{0.26f, 0.0f, 0.0f};
 
 
-	Segment segment{{-1.0f, 1.0f, 0.0f}, {2.0f, 0.0f, 0.0f}};
-	Plane plane{0.0f, 1.0f, 0.0f, 1.0f};
+	Vector3 controlPoints[3] = {
+		{-0.8f, 0.58f, 1.0f},
+		{1.76f, 1.0f, -0.3f},
+		{0.94f, -0.7f, 2.3f}
+	};
+
+	Vector3 controlPoint0 = {};
+	Vector3 controlPoint1 = {};
+	Vector3 controlPoint2 = {};
 	while (Novice::ProcessMessage() == 0) {
 		Novice::BeginFrame();
 
@@ -40,22 +47,18 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
 
-		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
-
-		if (SegmentIsCollsion(segment, plane)) {
-			DrawSegment(segment, viewProjectionMatrix, viewportMatrix, RED);
-		}
-		else {
-			DrawSegment(segment, viewProjectionMatrix, viewportMatrix, WHITE);
-		}
+		DrawBezier(
+			controlPoints[0],
+			controlPoints[1],
+			controlPoints[2],
+			viewProjectionMatrix,
+			viewportMatrix,
+			WHITE
+		);
 		ImGui::Begin("Debug Window");
-		ImGui::DragFloat3("Plane.Normal", &plane.normal.x, 0.1f);
-		plane.normal = Normalize(plane.normal);
-		ImGui::DragFloat("Plane.D", &plane.distance, 0.1f);
-		ImGui::DragFloat3("Segment.Origin", &segment.origin.x, 0.1f);
-		ImGui::DragFloat3("Segment.Diff", &segment.diff.x, 0.1f);
-
-
+		ImGui::DragFloat3("Control Point 0", &controlPoints[0].x, 0.01f);
+		ImGui::DragFloat3("Control Point 1", &controlPoints[1].x, 0.01f);
+		ImGui::DragFloat3("Control Point 2", &controlPoints[2].x, 0.01f);
 		ImGui::End();
 
 
