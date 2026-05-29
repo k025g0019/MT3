@@ -62,15 +62,14 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		Novice::GetHitKeyStateAll(keys);
 
 
-
 		//========================================================
 		// 必須
 		//============================================================
-		#ifdef USE_IMGUI
-				const bool canControlCamera = !ImGui::GetIO().WantCaptureMouse;
-		#else
-				const bool canControlCamera = true;
-		#endif
+#ifdef USE_IMGUI
+		const bool canControlCamera = !ImGui::GetIO().WantCaptureMouse;
+#else
+		const bool canControlCamera = true;
+#endif
 		UpdateOrbitCamera(orbitCamera, canControlCamera);
 		Vector3 cameraTranslate = GetOrbitCameraPosition(orbitCamera);
 		Vector3 cameraRotate = GetOrbitCameraRotation(orbitCamera);
