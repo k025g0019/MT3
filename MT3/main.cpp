@@ -79,22 +79,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		d = a - b;
 		e = a * 2.4f;
 
-		rotatexMatrix = MakeRotateXMatrix(rotate.x);
-		rotateyMatrix = MakeRotateYMatrix(rotate.y);
-		rotatezMatrix = MakeRotateZMatrix(rotate.z);
-		rotateMatrix = rotatexMatrix * rotateyMatrix * rotatezMatrix;
-
-		ImGui::Text("c : %.3f, %.3f, %.3f", c.x, c.y, c.z);
-		ImGui::Text("d : %.3f, %.3f, %.3f", d.x, d.y, d.z);
-		ImGui::Text("e : %.3f, %.3f, %.3f", e.x, e.y, e.z);
-
-		ImGui::Text("rotateMatrix");
-		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[0][0], rotateMatrix.matrix[0][1], rotateMatrix.matrix[0][2], rotateMatrix.matrix[0][3]);
-		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[1][0], rotateMatrix.matrix[1][1], rotateMatrix.matrix[1][2], rotateMatrix.matrix[1][3]);
-		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[2][0], rotateMatrix.matrix[2][1], rotateMatrix.matrix[2][2], rotateMatrix.matrix[2][3]);
-		ImGui::Text("%.3f %.3f %.3f %.3f", rotateMatrix.matrix[3][0], rotateMatrix.matrix[3][1], rotateMatrix.matrix[3][2], rotateMatrix.matrix[3][3]);
-
-		ImGui::End();
+	
 #endif
 
 		Novice::EndFrame();
