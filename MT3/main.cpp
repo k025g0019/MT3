@@ -23,20 +23,20 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	OrbitCamera orbitCamera{};
 	InitializeOrbitCamera(orbitCamera, {0.0f, 0.0f, 0.0f}, {0.0f, 1.9f, -6.49f});
 
-	Pendulum pendulum;
-	pendulum.anchor = {0.0f, 1.0f, 0.0f};
-	pendulum.length = 0.5f;
-	pendulum.angle = 0.7f;
-	pendulum.angularVelocity = 0.0f;
-	pendulum.angularAcceleration = 0.0f;
+	ConicalPendulum conicalPendulum;
+	conicalPendulum.anchor = {0.0f, 1.0f, 0.0f};
+	conicalPendulum.length = 0.8f;
+	conicalPendulum.halfApexAngle = 0.7f;
+	conicalPendulum.angle = 0.0f;
+	conicalPendulum.angularVelocity = 0.0f;
 
 
-	Vector3 p = pendulum.anchor;
+	Ball ball = {};
 	float deltaTime = 1.0f / 60.0f;
 	Sphere sphere{
-		.center{p},
-		.radius{0.1f},
+
 	};
+
 	bool ispendulum = false;
 	while (Novice::ProcessMessage() == 0) {
 		Novice::BeginFrame();
@@ -72,15 +72,16 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 
 		if (ispendulum) {
-			pendulum.angularAcceleration = -(9.8f / pendulum.length) * std::sin(pendulum.angle);
-			pendulum.angularVelocity += pendulum.angularAcceleration * deltaTime;
-			pendulum.angle += pendulum.angularVelocity * deltaTime;
-
-			p.x = pendulum.anchor.x + pendulum.length * std::sin(pendulum.angle);
-			p.y = pendulum.anchor.y - pendulum.length * std::cos(pendulum.angle);
-			p.z = pendulum.anchor.z;
+			conicalPendulum.angularVelocity = std::sqrt(
+				9.8f / (conicalPendulum.length * std::cos(conicalPendulum.halfApexAngle)));
+			conicalPendulum.angle += conicalPendulum.angularVelocity * deltaTime;
+			float radius = conicalPendulum.length * std::sin(conicalPendulum.halfApexAngle);
+			float height = conicalPendulum.length * std::cos(conicalPendulum.halfApexAngle);
+			ball.position.x = conicalPendulum.anchor.x + radius * std::cos(conicalPendulum.angle);
+			ball.position.y = conicalPendulum.anchor.y - height;
+			ball.position.z = conicalPendulum.anchor.z - std::sin(conicalPendulum.angle) * radius;
 		}
-		sphere.center = p;
+		sphere.center = ball.position;
 		sphere.radius = 0.1f;
 
 		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix,BLUE);
