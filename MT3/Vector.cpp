@@ -99,3 +99,8 @@ Vector3& operator+=(Vector3& v1, const Vector3& v2) {
 	v1.z += v2.z;
 	return v1;
 }
+
+Vector3 Reflect(const Vector3& v, const Vector3& normal) {
+	float dotProduct = Dot(v, normal);
+	return v - 2.0f * dotProduct * normal;
+}

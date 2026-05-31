@@ -23,21 +23,24 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	OrbitCamera orbitCamera{};
 	InitializeOrbitCamera(orbitCamera, {0.0f, 0.0f, 0.0f}, {0.0f, 1.9f, -6.49f});
 
-	ConicalPendulum conicalPendulum;
-	conicalPendulum.anchor = {0.0f, 1.0f, 0.0f};
-	conicalPendulum.length = 0.8f;
-	conicalPendulum.halfApexAngle = 0.7f;
-	conicalPendulum.angle = 0.0f;
-	conicalPendulum.angularVelocity = 0.0f;
-
 
 	Ball ball = {};
+	ball.position = {0.8f, 1.2f, 0.3f};
+	ball.color = BLUE;
+	ball.mass = 2.0f;
+	ball.velocity = {0.0f, 0.0f, 0.0f};
+	ball.radius = 0.05f;
+	ball.acceleration = {0.0f, -9.8f, 0.0f};
+	Plane plane = {};
+	plane.distance = 0.0f;
+	plane.normal = {-0.2f, 0.9f, -0.3f};
+
 	float deltaTime = 1.0f / 60.0f;
 	Sphere sphere{
 
 	};
 
-	bool ispendulum = false;
+
 	while (Novice::ProcessMessage() == 0) {
 		Novice::BeginFrame();
 
@@ -70,25 +73,52 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// ここにコードを追加していく
 		//=====================================================
 
+		Vector3 prePosition = ball.position;
 
-		if (ispendulum) {
-			conicalPendulum.angularVelocity = std::sqrt(
-				9.8f / (conicalPendulum.length * std::cos(conicalPendulum.halfApexAngle)));
-			conicalPendulum.angle += conicalPendulum.angularVelocity * deltaTime;
-			float radius = conicalPendulum.length * std::sin(conicalPendulum.halfApexAngle);
-			float height = conicalPendulum.length * std::cos(conicalPendulum.halfApexAngle);
-			ball.position.x = conicalPendulum.anchor.x + radius * std::cos(conicalPendulum.angle);
-			ball.position.y = conicalPendulum.anchor.y - height;
-			ball.position.z = conicalPendulum.anchor.z - std::sin(conicalPendulum.angle) * radius;
+		ball.velocity += ball.acceleration * deltaTime;
+		ball.position += ball.velocity * deltaTime;
+
+		// 移動前と移動後の位置からカプセルを作る
+		Capsule capsule{};
+		capsule.segment.origin = prePosition;
+		capsule.segment.diff = ball.position - prePosition;
+		capsule.radius = ball.radius;
+
+		// 平面との距離
+		float preDistance = Dot(prePosition, plane.normal) - plane.distance;
+		float currentDistance = Dot(ball.position, plane.normal) - plane.distance;
+
+		// 移動中に平面をまたいだか
+		bool isCapsuleHit =
+			(preDistance > ball.radius && currentDistance <= ball.radius) ||
+			(preDistance < -ball.radius && currentDistance >= -ball.radius);
+
+		if (isCapsuleHit) {
+			// 埋まった分を戻す
+			float penetration = ball.radius - currentDistance;
+
+			ball.position += plane.normal * penetration;
+
+			// 反射
+			Vector3 reflected = Reflect(ball.velocity, plane.normal);
+			Vector3 projectToNormal = Project(ball.velocity, plane.normal);
+
+			ball.velocity = reflected + 0.5f * projectToNormal;
 		}
-		sphere.center = ball.position;
-		sphere.radius = 0.1f;
 
-		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix,BLUE);
+		sphere = Sphere{ball.position, ball.radius};
+
+		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, ball.color);
+		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, RED);
 #ifdef USE_IMGUI
 		ImGui::Begin("Debug Window");
 		if (ImGui::Button("Reset Pendulum")) {
-			ispendulum = !ispendulum;
+			ball.position = {0.8f, 1.2f, 0.3f};
+			ball.color = BLUE;
+			ball.mass = 2.0f;
+			ball.velocity = {0.0f, 0.0f, 0.0f};
+			ball.radius = 0.05f;
+			ball.acceleration = {0.0f, -9.8f, 0.0f};
 		}
 		ImGui::End();
 
