@@ -56,6 +56,15 @@ Vector3 Normalize(const Vector3& v) {
 	}
 	return Multiply(1.0f / length, v);
 }
+
+Vector3 operator-(const Vector3& v) {
+	return {-v.x, -v.y, -v.z};
+}
+
+Vector3 operator+(const Vector3& v) {
+	return v;
+}
+
 Vector3 operator+(const Vector3& v1, const Vector3& v2) {
 	return {
 		v1.x + v2.x,
@@ -83,4 +92,3 @@ Vector3 operator*(const Vector3& v, float scalar) {
 Vector3 operator*(float scalar, const Vector3& v) {
 	return v * scalar;
 }
-
