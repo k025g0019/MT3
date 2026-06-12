@@ -1,14 +1,16 @@
-#include <Novice.h>
+﻿#include <Novice.h>
 
 #ifdef USE_IMGUI
 #include <imgui.h>
 #endif
 
 #include <algorithm>
+#include <cmath>
 
 #include "OrbitCamera.h"
 #include "Vector&Matrix.h"
 #include "bezier.h"
+
 constexpr char kWindowTitle[] = "LE1B_26";
 constexpr int kWindowWidth = 1280;
 constexpr int kWindowHeight = 720;
@@ -19,27 +21,25 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	char keys[256] = {0};
 	char preKeys[256] = {0};
 
-	//カメラの初期化
 	OrbitCamera orbitCamera{};
 	InitializeOrbitCamera(orbitCamera, {0.0f, 0.0f, 0.0f}, {0.0f, 1.9f, -6.49f});
 
-
-	Ball ball = {};
+	Ball ball{};
 	ball.position = {0.8f, 1.2f, 0.3f};
 	ball.color = BLUE;
 	ball.mass = 2.0f;
 	ball.velocity = {0.0f, 0.0f, 0.0f};
 	ball.radius = 0.05f;
 	ball.acceleration = {0.0f, -9.8f, 0.0f};
-	Plane plane = {};
+
+	Plane plane{};
 	plane.distance = 0.0f;
-	plane.normal = {-0.2f, 0.9f, -0.3f};
+	plane.normal = Normalize({-0.2f, 0.9f, -0.3f});
 
-	float deltaTime = 1.0f / 60.0f;
-	Sphere sphere{
+	constexpr float deltaTime = 1.0f / 60.0f;
+	constexpr float kRestitution = 0.5f;
 
-	};
-
+	Sphere sphere{};
 
 	while (Novice::ProcessMessage() == 0) {
 		Novice::BeginFrame();
@@ -47,15 +47,12 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		memcpy(preKeys, keys, 256);
 		Novice::GetHitKeyStateAll(keys);
 
-
-		//========================================================
-		// 必須
-		//============================================================
 #ifdef USE_IMGUI
 		const bool canControlCamera = !ImGui::GetIO().WantCaptureMouse;
 #else
 		const bool canControlCamera = true;
 #endif
+
 		UpdateOrbitCamera(orbitCamera, canControlCamera);
 		Vector3 cameraTranslate = GetOrbitCameraPosition(orbitCamera);
 		Vector3 cameraRotate = GetOrbitCameraRotation(orbitCamera);
@@ -69,50 +66,42 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 
-		//========================================================
-		// ここにコードを追加していく
-		//=====================================================
-
 		Vector3 prePosition = ball.position;
 
 		ball.velocity += ball.acceleration * deltaTime;
 		ball.position += ball.velocity * deltaTime;
 
-		// 移動前と移動後の位置からカプセルを作る
 		Capsule capsule{};
 		capsule.segment.origin = prePosition;
 		capsule.segment.diff = ball.position - prePosition;
 		capsule.radius = ball.radius;
 
-		// 平面との距離
 		float preDistance = Dot(prePosition, plane.normal) - plane.distance;
 		float currentDistance = Dot(ball.position, plane.normal) - plane.distance;
 
-		// 移動中に平面をまたいだか
 		bool isCapsuleHit =
 			(preDistance > ball.radius && currentDistance <= ball.radius) ||
 			(preDistance < -ball.radius && currentDistance >= -ball.radius);
 
 		if (isCapsuleHit) {
-			// 埋まった分を戻す
-			float penetration = ball.radius - currentDistance;
+			Vector3 pushDirection = currentDistance >= 0.0f ? plane.normal : -1.0f * plane.normal;
+			float penetration = ball.radius - std::abs(currentDistance);
+			ball.position += pushDirection * penetration;
 
-			ball.position += plane.normal * penetration;
-
-			// 反射
-			Vector3 reflected = Reflect(ball.velocity, plane.normal);
-			Vector3 projectToNormal = Project(ball.velocity, plane.normal);
-
-			ball.velocity = reflected + 0.5f * projectToNormal;
+			Vector3 normalVelocity = Project(ball.velocity, pushDirection);
+			Vector3 tangentVelocity = ball.velocity - normalVelocity;
+			Vector3 reflectedNormal = Reflect(normalVelocity, pushDirection);
+			ball.velocity = tangentVelocity + kRestitution * reflectedNormal;
 		}
 
 		sphere = Sphere{ball.position, ball.radius};
 
 		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, ball.color);
 		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, RED);
+
 #ifdef USE_IMGUI
 		ImGui::Begin("Debug Window");
-		if (ImGui::Button("Reset Pendulum")) {
+		if (ImGui::Button("Reset Ball")) {
 			ball.position = {0.8f, 1.2f, 0.3f};
 			ball.color = BLUE;
 			ball.mass = 2.0f;
@@ -121,8 +110,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			ball.acceleration = {0.0f, -9.8f, 0.0f};
 		}
 		ImGui::End();
-
-
 #endif
 
 		Novice::EndFrame();
